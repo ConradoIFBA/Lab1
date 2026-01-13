@@ -1,0 +1,163 @@
+ 
+              
+Apresentação de Tema e Resumo
+
+Identificação do Estudante
+Nome completo: Gabriel Conrado da Silva
+
+Tema do Projeto
+Tema: Sistema Gerador de Relatório Mensal de Receitas Brutas para MEI
+
+
+Resumo (máximo 300 palavras)
+Esse projeto tem o intuito de desenvolver um sistema que automatiza a geração de relatório mensal das Receitas Brutas, voltado a microempreendedores individuais (MEI). O sistema permitirá o cadastro e armazenamento de dados referentes às receitas obtidas mensalmente, divididas em 3 categorias principais: revenda de mercadorias, vendas de produtos industrializados e prestação de serviços (com ou sem nota fiscal). Com base nesses dados, o sistema irá calcular os totais parciais e o geral do mês, gerando um relatório formatado conforme exigido pelo modelo oficial. Além disso, o sistema permitirá a geração de relatório em formato PDF. Este projeto terá interface web. Este projeto facilitará o cumprimento das obrigações fiscais pelos MEIs, oferecendo uma solução simples, prática e eficiente.
+
+
+Lista de Funcionalidades
+
+Exemplo:
+Cadastro das receitas mensais por categoria:
+
+
+Revenda de mercadorias
+
+
+Produtos industrializados
+
+
+Prestação de serviços
+
+
+Separação entre receitas com e sem emissão de documentos fiscais
+
+
+Cálculo automático dos totais por categoria e total geral
+
+
+Geração de relatório formatado
+
+pendencias:
+Controller: 
+Separar ID da Nota e seu numero(que deve ser digitado)
+ PacoteDAO:
+(PagamentoDAO:Fazer metodo de externo, excluir ou marcar um determinado pagamento lançado. para isso sera necessario tbm criar uma flag na tablea de pagamento, visível ou excluido, onde os pagamentos estornados teram esse campo marcado,);
+
+
+Fluxograma:
+TELA DE LOGIN
+Campo "CPF" (com máscara XXX.XXX.XXX-XX)
+Campo "Senha" (com ícone de olho para mostrar/esconder)
+Botão "LOGIN" (autenticação)
+Link/Botão "CADASTRAR" (novo usuário)
+Link "Esqueceu a senha?"
+
+TELA DE CADASTRO DE USUÁRIO
+Nome Completo
+CPF
+Email
+Telefone
+Senha (com confirmação)
+CNPJ (opcional)
+Tipo de MEI (Revenda, Serviços, Industrializados)
+Botão "CADASTRAR"
+
+ DASHBOARD / ÚLTIMAS TRANSAÇÕES
+Menu Lateral:
+DASHBOARD (ativo)
+CADASTRAR NOTA → Tela de Cadastro
+VERIFICAR NOTAS → Lista de Notas Fiscais
+HISTÓRICO → Histórico de Relatórios
+RELATÓRIO → Geração de Relatório
+RECEITA → Tela de Receitas
+LOGIN → Logout (volta para login)
+Tabela Principal:
+Colunas: ID, Cliente, Valor, Data, Tipo, Nota Fiscal, Editar
+Botão "e" (editar) em cada linha → Tela de Edição
+Ordenação por colunas
+Paginação (10 itens por página)
+Filtros por data, tipo, cliente
+Cards de resumo (Receita Total, Média Mensal, Impostos)
+Filtro por período
+Busca rápida
+Exportar para Excel/PDF
+
+TELA DE CADASTRO DE VENDA
+Produto/Serviço (dropdown ou autocomplete)
+Cliente (campo texto ou seleção)
+Data (datepicker com máscara dd/mm/aaaa)
+Valor (campo monetário com máscara)
+Nota Fiscal? (radio buttons Sim/Não)
+Se "Sim" para nota fiscal → campos adicionais:
+Número da Nota
+Série
+Data de emissão
+Quantidade (número inteiro)
+Integração com SEFAZ (validação de NF)
+Botão "CADASTRAR"
+	
+HISTÓRICO DE RELATÓRIOS 
+Colunas: ID, Data (mês/ano), Valor Total
+Cada linha é um relatório mensal gerado
+Clicar na linha → visualiza relatório detalhado
+Filtro por ano
+Ordenação por data ou valor
+Botão "Visualizar" em cada linha
+Botão "Reimprimir/Reexportar"
+
+TELA DE GERAÇÃO DE RELATÓRIO
+Data de Início (datepicker)
+Data de Término (datepicker)
+Botão "GERAR"
+Gera relatório com:
+Total por categoria (Revenda, Industrializados, Serviços)
+Separação com/sem nota fiscal
+Totais parciais e geral
+Opções após geração:
+Visualizar na tela
+Baixar PDF
+Enviar por email
+Imprimir
+
+TELA DE PERFIL DO USUÁRIO
+Dados Pessoais (edição)
+Dados do MEI (atividade principal, CNAE)
+Configurações de Notificação (email, SMS)
+Alterar Senha
+Documentos (upload/view)
+Assinatura Digital (cadastro)
+Botão "SALVAR"
+
+TELA DE IMPOSTOS E TRIBUTOS
+Cálculo automático do DAS (Documento de Arrecadação do Simples)
+Vencimentos e alertas
+Histórico de pagamentos
+Guias para download
+Simulador de alteração de faturamento
+Integração com Portal do Empreendedor
+
+TELA DE SUPORTE/CONTATO
+FAQ (Perguntas Frequentes)
+Chat com suporte
+Ticket de suporte
+Tutoriais em vídeo
+Contato do contador (se cadastrado)
+Links úteis (SEFAZ, Portal do Empreendedor)
+
+TELA DE CLIENTES/CATÁLOGO
+CRUD de clientes (Nome, CPF/CNPJ, Endereço)
+CRUD de produtos/serviços (Descrição, Categoria, Preço)
+Categorização (Revenda, Industrializado, Serviço)
+Histórico de compras por cliente
+Lista de favoritos/frequentes
+
+
+
+
+
+
+
+
+
+
+
+
