@@ -280,86 +280,38 @@
             margin-bottom: 20px;
         }
 
-        /* CARD STATS - NOVO GRID 3x2 */
+        /* CARD STATS - ESTILO ORIGINAL */
         .stats-card {
-            background-color: #1e293b;
-            border: 1px solid #334155;
-        }
-
-        .stats-grid-6 {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 20px;
-            border-radius: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
+            border: none;
         }
 
-        .stat-card-title {
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .stat-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .stat-label {
             font-size: 14px;
             opacity: 0.9;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
-        .stat-card-value {
+        .stat-value {
             font-size: 24px;
-            font-weight: bold;
+            font-weight: 700;
         }
 
-        .stat-card-subtitle {
-            font-size: 11px;
-            margin-top: 5px;
-            opacity: 0.9;
-        }
-
-        /* Cores dos cards */
-        .stat-card-purple {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-
-        .stat-card-pink {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        }
-
-        .stat-card-cyan {
-            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        }
-
-        .stat-card-green {
-            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
-        }
-
-        .stat-card-red {
-            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
-        }
-
-        .stat-card-blue {
-            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-            color: #333;
-        }
-
-        .stat-card-blue .stat-card-value {
-            color: #667eea;
-        }
-
-        .stat-card-orange {
-            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
-            color: #333;
-        }
-
-        .stat-card-orange .stat-card-value {
-            color: #f5576c;
-        }
-
-        @media (max-width: 768px) {
-            .stats-grid-6 {
-                grid-template-columns: repeat(2, 1fr);
-            }
+        .text-danger {
+            color: #fca5a5 !important;
         }
 
         /* FORMULÁRIO */
@@ -751,52 +703,46 @@
                         </form>
                     </div>
 
-                    <!-- CARD RESUMO - 6 CARDS EM GRID 3x2 -->
+                    <!-- CARD RESUMO MÊS E ANO -->
                     <div class="card stats-card">
-                        <h3>📊 Resumo Financeiro</h3>
-                        
-                        <!-- GRID 3x2 COM 6 CARDS -->
-                        <div class="stats-grid-6">
-                            
-                            <!-- CARD 1: Total do Mês -->
-                            <div class="stat-card stat-card-purple">
-                                <div class="stat-card-title">💰 Total do Mês</div>
-                                <div class="stat-card-value"><%= df.format(totalMes) %></div>
+                        <h3>📈 Resumo Financeiro</h3>
+                        <p class="subtitle">Suas vendas do mês e ano atual</p>
+
+                        <div class="stats-grid">
+                            <!-- LINHA 1 -->
+                            <div class="stat-item">
+                                <div class="stat-label">Total do Mês</div>
+                                <div class="stat-value"><%= df.format(totalMes) %></div>
                             </div>
-                            
-                            <!-- CARD 2: Vendas do Mês -->
-                            <div class="stat-card stat-card-pink">
-                                <div class="stat-card-title">🛒 Vendas do Mês</div>
-                                <div class="stat-card-value"><%= vendasRealizadas %></div>
+
+                            <div class="stat-item">
+                                <div class="stat-label">Vendas do Mês</div>
+                                <div class="stat-value"><%= vendasRealizadas %></div>
                             </div>
-                            
-                            <!-- CARD 3: Limite MEI -->
-                            <div class="stat-card stat-card-cyan">
-                                <div class="stat-card-title">📋 Limite MEI</div>
-                                <div class="stat-card-value"><%= df.format(limiteMEI) %></div>
+
+                            <!-- LINHA 2 -->
+                            <div class="stat-item">
+                                <div class="stat-label">Limite MEI</div>
+                                <div class="stat-value">R$ 81.000</div>
                             </div>
-                            
-                            <!-- CARD 4: Disponível -->
-                            <div class="stat-card <%= disponivel >= 0 ? "stat-card-green" : "stat-card-red" %>">
-                                <div class="stat-card-title">💵 Disponível</div>
-                                <div class="stat-card-value"><%= df.format(disponivel) %></div>
-                                <% if (disponivel < 0) { %>
-                                    <div class="stat-card-subtitle">⚠️ Limite ultrapassado!</div>
-                                <% } %>
+
+                            <div class="stat-item">
+                                <div class="stat-label">Disponível</div>
+                                <div class="stat-value <%= disponivel < 0 ? "text-danger" : "" %>">
+                                    <%= disponivel < 0 ? "-" : "" %><%= df.format(Math.abs(disponivel)) %>
+                                </div>
                             </div>
-                            
-                            <!-- CARD 5: Total do Ano -->
-                            <div class="stat-card stat-card-blue">
-                                <div class="stat-card-title">📅 Total do Ano</div>
-                                <div class="stat-card-value"><%= df.format(totalAno) %></div>
+
+                            <!-- LINHA 3 - DADOS DO ANO -->
+                            <div class="stat-item">
+                                <div class="stat-label">Total do Ano</div>
+                                <div class="stat-value"><%= df.format(totalAno) %></div>
                             </div>
-                            
-                            <!-- CARD 6: Vendas do Ano -->
-                            <div class="stat-card stat-card-orange">
-                                <div class="stat-card-title">📦 Vendas do Ano</div>
-                                <div class="stat-card-value"><%= vendasAno %></div>
+
+                            <div class="stat-item">
+                                <div class="stat-label">Vendas do Ano</div>
+                                <div class="stat-value"><%= vendasAno %></div>
                             </div>
-                            
                         </div>
                     </div>
 
