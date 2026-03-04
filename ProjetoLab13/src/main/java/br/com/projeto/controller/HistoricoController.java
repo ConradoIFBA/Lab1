@@ -165,6 +165,55 @@ public class HistoricoController extends HttpServlet {
             System.out.println("📅 Ano padrão: 2026");
         }
 
+        // Mês: default 0 (todos os meses)
+        // ================================================
+        // VALORES POSSÍVEIS:
+        // 0 = Todos os meses (não filtra por mês específico)
+        // 1 = Janeiro
+        // 2 = Fevereiro
+        // 3 = Março
+        // 4 = Abril
+        // 5 = Maio
+        // 6 = Junho
+        // 7 = Julho
+        // 8 = Agosto
+        // 9 = Setembro
+        // 10 = Outubro
+        // 11 = Novembro
+        // 12 = Dezembro
+        // ================================================
+        String mesParam = request.getParameter("mes");
+        int mes = 0;
+
+        if (mesParam != null && !mesParam.isEmpty()) {
+            try {
+                mes = Integer.parseInt(mesParam);
+                
+                // Validação: mês deve estar entre 0 e 12
+                if (mes < 0 || mes > 12) {
+                    System.err.println("⚠️ Mês inválido (" + mes + "), fora do intervalo 0-12");
+                    System.err.println("   Usando padrão: 0 (Todos)");
+                    mes = 0;
+                } else {
+                    // Log diferenciado para "Todos" vs mês específico
+                    if (mes == 0) {
+                        System.out.println("📅 Mês selecionado: 0 (Todos os meses)");
+                    } else {
+                        String[] nomesMeses = {"", "Janeiro", "Fevereiro", "Março", "Abril", 
+                            "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", 
+                            "Novembro", "Dezembro"};
+                        System.out.println("📅 Mês selecionado: " + mes + " (" + nomesMeses[mes] + ")");
+                    }
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("⚠️ Mês inválido: '" + mesParam + "' não é um número");
+                System.err.println("   Usando padrão: 0 (Todos)");
+                mes = 0;
+            }
+        } else {
+            System.out.println("📅 Mês padrão: 0 (Todos os meses)");
+        }
+
         // Filtro NF: default "todas"
         String filtroNF = request.getParameter("filtroNF");
 
@@ -174,6 +223,7 @@ public class HistoricoController extends HttpServlet {
 
         System.out.println("🔍 Filtros aplicados:");
         System.out.println("   - Ano: " + ano);
+        System.out.println("   - Mês: " + mes + (mes == 0 ? " (Todos)" : ""));
         System.out.println("   - Filtro NF: " + filtroNF);
         System.out.println("   - Usuário ID: " + usuario.getIdUsuario());
 
@@ -217,14 +267,16 @@ public class HistoricoController extends HttpServlet {
 
             // ========== STEP 5: BUSCAR VENDAS COM FILTRO ==========
             System.out.println("⏳ Buscando vendas filtradas...");
-            System.out.println("   - SQL: listarPorAnoComFiltroNF(" + usuario.getIdUsuario() + ", " + ano + ", '" + filtroNF + "')");
+            System.out.println("   - SQL: listarPorAnoEMesComFiltroNF(" + 
+                usuario.getIdUsuario() + ", " + ano + ", " + mes + ", '" + filtroNF + "')");
 
             List<Vendas> vendasDetalhadas = new ArrayList<>();
 
             try {
-                vendasDetalhadas = vendasDAO.listarPorAnoComFiltroNF(
+                vendasDetalhadas = vendasDAO.listarPorAnoEMesComFiltroNF(
                         usuario.getIdUsuario(),
                         ano,
+                        mes,      // ⬅️ NOVO PARÂMETRO MÊS
                         filtroNF
                 );
 
@@ -287,6 +339,7 @@ public class HistoricoController extends HttpServlet {
 
             // ========== STEP 7: PREPARAR DADOS PARA JSP ==========
             request.setAttribute("ano", ano);
+            request.setAttribute("mes", mes);        // ⬅️ NOVO: envia mês selecionado
             request.setAttribute("anos", anos);
             request.setAttribute("filtroNF", filtroNF);
             request.setAttribute("vendasDetalhadas", vendasDetalhadas);

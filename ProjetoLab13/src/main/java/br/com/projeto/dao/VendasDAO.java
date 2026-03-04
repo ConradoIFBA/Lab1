@@ -409,6 +409,114 @@ public class VendasDAO {
         return vendas;
     }
 
+    /**
+     * ================================================================
+     * LISTAR VENDAS POR ANO, MÊS E FILTRO DE NOTA FISCAL
+     * ================================================================
+     * 
+     * PROPÓSITO:
+     * Busca vendas de um usuário com filtros de ano, mês e nota fiscal.
+     * Usado pela tela de Histórico para exibir vendas filtradas.
+     * 
+     * PARÂMETROS:
+     * @param usuarioId - ID do usuário (obrigatório)
+     * @param ano - Ano das vendas (obrigatório)
+     * @param mes - Mês das vendas (0 = todos, 1-12 = mês específico)
+     * @param filtroNF - Filtro de nota fiscal ("todas", "comNF", "semNF")
+     * 
+     * FILTRO DE MÊS:
+     * - mes = 0: Não filtra por mês, retorna TODOS os meses do ano
+     * - mes = 1-12: Filtra pelo mês específico (1=Jan, 2=Fev, ..., 12=Dez)
+     * 
+     * FILTRO DE NF:
+     * - "todas": Retorna todas as vendas (com e sem NF)
+     * - "comNF": Retorna apenas vendas COM nota fiscal (nota_fiscal_emitida='S')
+     * - "semNF": Retorna apenas vendas SEM nota fiscal (nota_fiscal_emitida='N')
+     * 
+     * QUERY SQL:
+     * Faz INNER JOIN com categoria (obrigatória para toda venda)
+     * Faz LEFT JOIN com nota_fiscal (opcional, nem toda venda tem NF)
+     * 
+     * ORDENAÇÃO:
+     * Vendas ordenadas por data DESC (mais recentes primeiro)
+     * 
+     * RETORNO:
+     * List<Vendas> com objetos completos incluindo:
+     * - Dados da venda (id, valor, data, descricao)
+     * - Categoria associada
+     * - Nota fiscal (se houver)
+     * 
+     * EXEMPLO DE USO:
+     * // Buscar todas as vendas de fevereiro/2026:
+     * List<Vendas> vendas = dao.listarPorAnoEMesComFiltroNF(1, 2026, 2, "todas");
+     * 
+     * // Buscar vendas com NF do ano todo de 2026:
+     * List<Vendas> vendas = dao.listarPorAnoEMesComFiltroNF(1, 2026, 0, "comNF");
+     * 
+     * @throws Exception Se houver erro na consulta SQL
+     */
+    public List<Vendas> listarPorAnoEMesComFiltroNF(int usuarioId, int ano, int mes, String filtroNF) throws Exception {
+        List<Vendas> vendas = new ArrayList<>();
+
+        // ========== CONSTRUIR QUERY SQL DINÂMICA ==========
+        StringBuilder sql = new StringBuilder();
+        sql.append("SELECT v.*, c.nome_categoria, ");
+        sql.append("nf.id_nota_fiscal, nf.numero, nf.data_emissao, nf.valor as nf_valor ");
+        sql.append("FROM vendas v ");
+        sql.append("INNER JOIN categoria c ON v.categoria_id = c.id_categoria ");
+        sql.append("LEFT JOIN nota_fiscal nf ON v.id_vendas = nf.vendas_id ");
+        sql.append("WHERE v.usuario_id = ? ");
+        sql.append("AND YEAR(v.data_vendas) = ? ");
+
+        // ========== FILTRO DE MÊS (CONDICIONAL) ==========
+        // Se mes > 0, adiciona filtro MONTH()
+        // Se mes = 0, não adiciona (retorna todos os meses)
+        if (mes > 0 && mes <= 12) {
+            sql.append("AND MONTH(v.data_vendas) = ? ");
+        }
+
+        sql.append("AND v.ativo = true ");
+
+        // ========== FILTRO DE NOTA FISCAL ==========
+        // "comNF": apenas com NF
+        // "semNF": apenas sem NF
+        // "todas" ou qualquer outro valor: não filtra
+        if ("comNF".equals(filtroNF)) {
+            sql.append("AND v.nota_fiscal_emitida = 'S' ");
+        } else if ("semNF".equals(filtroNF)) {
+            sql.append("AND v.nota_fiscal_emitida = 'N' ");
+        }
+
+        sql.append("ORDER BY v.data_vendas DESC");
+
+        // ========== PREPARAR E EXECUTAR STATEMENT ==========
+        PreparedStatement stmt = conexao.prepareStatement(sql.toString());
+        
+        // Parâmetros obrigatórios
+        int paramIndex = 1;
+        stmt.setInt(paramIndex++, usuarioId);
+        stmt.setInt(paramIndex++, ano);
+        
+        // Parâmetro condicional: mês (só se mes > 0)
+        if (mes > 0 && mes <= 12) {
+            stmt.setInt(paramIndex++, mes);
+        }
+
+        // Executar query
+        ResultSet rs = stmt.executeQuery();
+
+        // ========== PROCESSAR RESULTADOS ==========
+        // criarVendaDoResultSet() monta objeto Vendas completo
+        while (rs.next()) {
+            vendas.add(criarVendaDoResultSet(rs));
+        }
+
+        rs.close();
+        stmt.close();
+        
+        return vendas;
+    }
+
     // ============================================================
     // MÉTODOS DE CÁLCULO E RESUMOS
     // ============================================================

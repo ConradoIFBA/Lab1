@@ -68,26 +68,28 @@ public class RelatorioPDF {
      * ================================================================
      *
      * Agrupa vendas por:
-     * - Categoria (Revenda, Industrializados, Serviços)
+     * - Categoria (Revenda, Industrializados, Serviços, Outro)
      * - Nota Fiscal (Com NF, Sem NF)
      *
-     * Array de retorno (7 posições):
+     * Array de retorno (9 posições):
      * [0] = Revenda COM NF
      * [1] = Revenda SEM NF
      * [2] = Industrializados COM NF
      * [3] = Industrializados SEM NF
      * [4] = Serviços COM NF
      * [5] = Serviços SEM NF
-     * [6] = Total Geral (soma de tudo)
+     * [6] = Outro COM NF
+     * [7] = Outro SEM NF
+     * [8] = Total Geral (soma de tudo)
      *
      * IMPORTANTE: Usado para tabela de receitas do relatório.
      *
      * @param vendas Lista de vendas do mês
-     * @return Array de 7 doubles com totais
+     * @return Array de 9 doubles com totais
      */
     public double[] calcularTotais(List<Vendas> vendas) {
         // Inicializa array com zeros
-        double[] totais = new double[7];
+        double[] totais = new double[9];
 
         // Itera cada venda
         for (Vendas v : vendas) {
@@ -110,15 +112,17 @@ public class RelatorioPDF {
                 // PRESTAÇÃO DE SERVIÇOS
             } else if (categoria.contains("servi")) {
                 totais[comNF ? 4 : 5] += v.getValor();
-            }
 
-            // OBS: Categorias "Outro" não são somadas (não são obrigatórias no DASN)
+                // OUTRO
+            } else {
+                totais[comNF ? 6 : 7] += v.getValor();
+            }
         }
 
         // ========== TOTAL GERAL ==========
-        // Soma todas as 6 categorias
-        for (int i = 0; i < 6; i++) {
-            totais[6] += totais[i];
+        // Soma todas as 8 categorias
+        for (int i = 0; i < 8; i++) {
+            totais[8] += totais[i];
         }
 
         return totais;
@@ -238,6 +242,12 @@ public class RelatorioPDF {
         // Adiciona linhas
         adicionarCelulaDados(tabelaDados, "Nome:", usuario.getNome());
         adicionarCelulaDados(tabelaDados, "CPF:", formatarCPF(usuario.getCpf()));
+        
+        // Adicionar CNPJ se cadastrado
+        if (usuario.getCnpj() != null && !usuario.getCnpj().trim().isEmpty()) {
+            adicionarCelulaDados(tabelaDados, "CNPJ:", formatarCNPJ(usuario.getCnpj()));
+        }
+        
         adicionarCelulaDados(tabelaDados, "Período:", getNomeMes(mes) + "/" + ano);
 
         doc.add(tabelaDados);
@@ -294,7 +304,11 @@ public class RelatorioPDF {
         adicionarLinhaCategoria(tabela, "III - Prestação de Serviços",
                 totais[4], totais[5]);
 
-        // ========== LINHA 4: TOTAL GERAL ==========
+        // ========== LINHA 4: OUTRO ==========
+        adicionarLinhaCategoria(tabela, "Outro",
+                totais[6], totais[7]);
+
+        // ========== LINHA 5: TOTAL GERAL ==========
         // Célula mesclada (2 colunas) para "TOTAL GERAL"
         PdfPCell celulaTotal = new PdfPCell(new Phrase("TOTAL GERAL", NEGRITO));
         celulaTotal.setBackgroundColor(new BaseColor(230, 230, 230)); // Cinza claro
@@ -303,7 +317,7 @@ public class RelatorioPDF {
         tabela.addCell(celulaTotal);
 
         // Célula do valor total
-        PdfPCell celulaValorTotal = new PdfPCell(new Phrase(moeda.format(totais[6]), NEGRITO));
+        PdfPCell celulaValorTotal = new PdfPCell(new Phrase(moeda.format(totais[8]), NEGRITO));
         celulaValorTotal.setBackgroundColor(new BaseColor(230, 230, 230));
         celulaValorTotal.setPadding(8);
         celulaValorTotal.setHorizontalAlignment(Element.ALIGN_RIGHT); // Alinha à direita
@@ -319,15 +333,15 @@ public class RelatorioPDF {
      *
      * Lista TODAS as vendas do mês em formato tabela.
      *
-     * Colunas: [Data] [Categoria] [Descrição] [NF] [Valor]
+     * Colunas: [Data] [Categoria] [Descrição] [NF] [Número] [Valor]
      *
      * Layout:
-     * ┌────────┬───────────┬──────────┬────┬──────────┐
-     * │ Data   │ Categoria │ Descr.   │ NF │ Valor    │
-     * ├────────┼───────────┼──────────┼────┼──────────┤
-     * │ 01/02  │ Produtos  │ Venda X  │ S  │ R$ 100   │
-     * │ 05/02  │ Serviços  │ Consult. │ N  │ R$ 500   │
-     * └────────┴───────────┴──────────┴────┴──────────┘
+     * ┌────────┬───────────┬──────────┬────┬──────────┬──────────┐
+     * │ Data   │ Categoria │ Descr.   │ NF │ Número   │ Valor    │
+     * ├────────┼───────────┼──────────┼────┼──────────┼──────────┤
+     * │ 01/02  │ Produtos  │ Venda X  │ S  │ NF-2026  │ R$ 100   │
+     * │ 05/02  │ Serviços  │ Consult. │ N  │ -        │ R$ 500   │
+     * └────────┴───────────┴──────────┴────┴──────────┴──────────┘
      */
     private void adicionarDetalhamentoVendas(Document doc, List<Vendas> vendas)
             throws DocumentException {
@@ -341,16 +355,17 @@ public class RelatorioPDF {
         doc.add(new Paragraph("\n"));
 
         // ========== CRIAR TABELA ==========
-        // 5 colunas com larguras proporcionais
-        PdfPTable tabela = new PdfPTable(5);
+        // 6 colunas com larguras proporcionais
+        PdfPTable tabela = new PdfPTable(6);
         tabela.setWidthPercentage(100);
-        tabela.setWidths(new float[]{15, 30, 20, 15, 20});
+        tabela.setWidths(new float[]{12, 25, 20, 8, 15, 20});
 
         // ========== CABEÇALHO ==========
         adicionarCelulaHeader(tabela, "Data");
         adicionarCelulaHeader(tabela, "Categoria");
         adicionarCelulaHeader(tabela, "Descrição");
         adicionarCelulaHeader(tabela, "NF");
+        adicionarCelulaHeader(tabela, "Número");
         adicionarCelulaHeader(tabela, "Valor");
 
         // ========== LINHAS (cada venda) ==========
@@ -375,6 +390,13 @@ public class RelatorioPDF {
             tabela.addCell(new PdfPCell(new Phrase(
                     v.getDescricao() != null ? v.getDescricao() : "-", NORMAL)));
             tabela.addCell(new PdfPCell(new Phrase(v.getNotaFiscalEmitida(), NORMAL)));
+
+            // Número da NF (se tiver)
+            String numeroNF = "-";
+            if (v.getNotaFiscal() != null && v.getNotaFiscal().getNumero() != null) {
+                numeroNF = v.getNotaFiscal().getNumero();
+            }
+            tabela.addCell(new PdfPCell(new Phrase(numeroNF, NORMAL)));
 
             // Célula de valor (alinhada à direita)
             PdfPCell celulaValor = new PdfPCell(new Phrase(moeda.format(v.getValor()), NORMAL));
@@ -479,6 +501,19 @@ public class RelatorioPDF {
                 cpf.substring(3,6) + "." +
                 cpf.substring(6,9) + "-" +
                 cpf.substring(9,11);
+    }
+
+    /**
+     * Formata CNPJ: 12345678000190 → 12.345.678/0001-90
+     */
+    private String formatarCNPJ(String cnpj) {
+        if (cnpj == null || cnpj.length() != 14) return cnpj;
+
+        return cnpj.substring(0,2) + "." +
+                cnpj.substring(2,5) + "." +
+                cnpj.substring(5,8) + "/" +
+                cnpj.substring(8,12) + "-" +
+                cnpj.substring(12,14);
     }
 
     /**
