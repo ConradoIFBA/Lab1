@@ -5,36 +5,14 @@
 <%@ page import="br.com.projeto.model.Usuario" %>
 <%@ page import="br.com.projeto.model.Vendas" %>
 <%@ page import="br.com.projeto.model.Categoria" %>
-<%--
-    ================================================================
-    DASHBOARD JSP - Painel Principal Sistema MEI
-    ================================================================
-    VERSÃO: 3.0 - Com 6 cards (mês + ano)
-    
-    FUNCIONALIDADES:
-    1. Cards estatísticas 3x2 (Total Mês, Vendas Mês, Limite, Disponível, Total Ano, Vendas Ano)
-    2. Formulário inline cadastro rápido de venda
-    3. Tabela últimas 10 vendas cadastradas
-    4. Navegação sidebar + topbar sticky
-
-    DADOS DO CONTROLLER (DashboardController):
-    - categorias: List<Categoria> - Para dropdown do formulário
-    - ultimasVendas: List<Vendas> - Últimas 10 vendas
-    - totalMes: Double - Soma vendas do mês atual
-    - totalVendas: Integer - Quantidade vendas do mês
-    - totalAno: Double - Soma vendas do ano ⬅️ NOVO!
-    - vendasAno: Integer - Quantidade vendas do ano ⬅️ NOVO!
---%>
 
 <%
-    // ========== VALIDAÇÃO DE SESSÃO ==========
     Usuario usuario = (Usuario) session.getAttribute("usuario");
     if (usuario == null) {
         response.sendRedirect("login");
         return;
     }
 
-    // ========== DADOS DO CONTROLLER ==========
     @SuppressWarnings("unchecked")
     List<Categoria> categorias = (List<Categoria>) request.getAttribute("categorias");
     if (categorias == null) categorias = new java.util.ArrayList<>();
@@ -46,24 +24,19 @@
     Double totalMes = (Double) request.getAttribute("totalMes");
     if (totalMes == null) totalMes = 0.0;
 
-    // ========== MENSAGENS ==========
     String mensagemSucesso = (String) session.getAttribute("sucesso");
     String mensagemErro = (String) session.getAttribute("erro");
     session.removeAttribute("sucesso");
     session.removeAttribute("erro");
 
-    // ========== FORMATADORES ==========
     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
     DecimalFormat df = new DecimalFormat("R$ #,##0.00");
 
-    // ========== CÁLCULOS DO MEI ==========
     double limiteMEI = 81000.00;
     
-    // Dados do mês
     Integer totalVendasAttr = (Integer) request.getAttribute("totalVendas");
     int vendasRealizadas = (totalVendasAttr != null) ? totalVendasAttr : 0;
     
-    // Dados do ano (NOVOS)
     Integer vendasAnoAttr = (Integer) request.getAttribute("vendasAno");
     Double totalAnoAttr = (Double) request.getAttribute("totalAno");
     
@@ -86,7 +59,7 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background-color: #0f172a;
             color: #e2e8f0;
             line-height: 1.6;
@@ -97,7 +70,6 @@
             min-height: 100vh;
         }
 
-        /* SIDEBAR */
         .sidebar {
             width: 250px;
             background-color: #1e293b;
@@ -159,7 +131,6 @@
             text-align: center;
         }
 
-        /* MAIN CONTENT */
         .main-content {
             flex: 1;
             margin-left: 250px;
@@ -168,7 +139,6 @@
             min-height: 100vh;
         }
 
-        /* TOPBAR */
         .topbar {
             background-color: #1e293b;
             padding: 20px 30px;
@@ -179,6 +149,12 @@
             position: sticky;
             top: 0;
             z-index: 100;
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
         .topbar-left h2 {
@@ -217,13 +193,11 @@
             color: #94a3b8;
         }
 
-        /* CONTENT */
         .content {
             flex: 1;
             padding: 30px;
         }
 
-        /* ALERTAS */
         .alert {
             padding: 16px 20px;
             border-radius: 8px;
@@ -232,7 +206,6 @@
             align-items: center;
             gap: 12px;
             font-weight: 500;
-            transition: opacity 0.3s;
         }
 
         .alert-success {
@@ -245,7 +218,6 @@
             color: white;
         }
 
-        /* GRID DASHBOARD */
         .dashboard-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -259,7 +231,6 @@
             }
         }
 
-        /* CARDS */
         .card {
             background-color: #1e293b;
             border-radius: 12px;
@@ -280,9 +251,8 @@
             margin-bottom: 20px;
         }
 
-        /* CARD STATS - ESTILO ORIGINAL */
+        /* NÃO definir gradiente aqui - deixar para o corToggle */
         .stats-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
         }
@@ -314,7 +284,6 @@
             color: #fca5a5 !important;
         }
 
-        /* FORMULÁRIO */
         .form-group {
             margin-bottom: 20px;
         }
@@ -348,25 +317,11 @@
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
-        .form-group input:disabled {
-            background-color: #1e293b;
-            cursor: not-allowed;
-            opacity: 0.5;
-        }
-
         .form-group textarea {
             resize: vertical;
             min-height: 80px;
         }
 
-        .form-group small {
-            display: block;
-            margin-top: 6px;
-            font-size: 13px;
-            color: #64748b;
-        }
-
-        /* CHECKBOX */
         .checkbox-group {
             display: flex;
             align-items: center;
@@ -382,26 +337,16 @@
             width: 20px;
             height: 20px;
             cursor: pointer;
-            accent-color: #3b82f6;
-        }
-
-        .checkbox-group label {
-            cursor: pointer;
-            margin: 0;
-            font-weight: 500;
-            color: #e2e8f0;
         }
 
         #numeroNFContainer {
             display: none;
-            margin-bottom: 20px;
         }
 
         #numeroNFContainer.show {
             display: block;
         }
 
-        /* BOTÕES */
         .btn {
             padding: 12px 24px;
             border: none;
@@ -410,8 +355,6 @@
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s;
-            text-decoration: none;
-            display: inline-block;
         }
 
         .btn-primary {
@@ -421,16 +364,12 @@
 
         .btn-primary:hover {
             background-color: #2563eb;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
         }
 
         .btn-block {
             width: 100%;
-            display: block;
         }
 
-        /* TABELA */
         table {
             width: 100%;
             border-collapse: collapse;
@@ -447,7 +386,6 @@
             font-size: 13px;
             color: #94a3b8;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
             border-bottom: 2px solid #334155;
         }
 
@@ -461,7 +399,6 @@
             background-color: #0f172a;
         }
 
-        /* BADGES */
         .badge {
             padding: 4px 12px;
             border-radius: 12px;
@@ -480,7 +417,6 @@
             color: white;
         }
 
-        /* EMPTY STATE */
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -491,29 +427,6 @@
             font-size: 64px;
             margin-bottom: 16px;
             opacity: 0.5;
-        }
-
-        .empty-state p {
-            margin-bottom: 8px;
-        }
-
-        /* SCROLLBAR */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: #1e293b;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #475569;
-            border-radius: 4px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #64748b;
         }
     </style>
     <script>
@@ -533,22 +446,13 @@
                 input.value = '';
             }
         }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            const alerts = document.querySelectorAll('.alert');
-            alerts.forEach(alert => {
-                setTimeout(() => {
-                    alert.style.opacity = '0';
-                    setTimeout(() => alert.remove(), 300);
-                }, 5000);
-            });
-        });
     </script>
+    
+    <!-- Modo de cor -->
+    <%@ include file="corToggle.jsp" %>
 </head>
 <body>
     <div class="main-container">
-
-        <!-- SIDEBAR -->
         <div class="sidebar">
             <div class="sidebar-header">
                 <h1>📊 MEI</h1>
@@ -587,13 +491,13 @@
             </ul>
         </div>
 
-        <!-- MAIN CONTENT -->
         <div class="main-content">
-
-            <!-- TOPBAR -->
             <div class="topbar">
                 <div class="topbar-left">
                     <h2>Dashboard</h2>
+                    <button class="theme-toggle-btn" onclick="toggleTheme()" title="Alternar tema">
+                        <span id="theme-icon">L</span>
+                    </button>
                 </div>
                 <div class="topbar-right">
                     <div class="user-info">
@@ -606,10 +510,7 @@
                 </div>
             </div>
 
-            <!-- CONTENT -->
             <div class="content">
-
-                <!-- ALERTAS -->
                 <% if (mensagemSucesso != null) { %>
                     <div class="alert alert-success">
                         <span>✅</span>
@@ -624,16 +525,10 @@
                     </div>
                 <% } %>
 
-                <!-- GRID PRINCIPAL -->
                 <div class="dashboard-grid">
-
-                    <!-- FORMULÁRIO NOVA VENDA -->
                     <div class="card">
                         <h3>➕ Nova Venda</h3>
-
                         <form method="POST" action="${pageContext.request.contextPath}/dashboard">
-
-                            <!-- Categoria -->
                             <div class="form-group">
                                 <label for="categoria">Categoria *</label>
                                 <select id="categoria" name="categoria" required>
@@ -646,70 +541,36 @@
                                 </select>
                             </div>
 
-                            <!-- Valor -->
                             <div class="form-group">
                                 <label for="valor">Valor (R$) *</label>
-                                <input
-                                    type="number"
-                                    id="valor"
-                                    name="valor"
-                                    step="0.01"
-                                    min="0.01"
-                                    placeholder="0.00"
-                                    required
-                                >
+                                <input type="number" id="valor" name="valor" step="0.01" min="0.01" placeholder="0.00" required>
                             </div>
 
-                            <!-- CHECKBOX EMITIR NF -->
                             <div class="checkbox-group">
-                                <input
-                                    type="checkbox"
-                                    id="emitirNF"
-                                    name="emitirNF"
-                                    value="S"
-                                    onchange="toggleNumeroNF()"
-                                >
+                                <input type="checkbox" id="emitirNF" name="emitirNF" value="S" onchange="toggleNumeroNF()">
                                 <label for="emitirNF">📋 Emitir Nota Fiscal</label>
                             </div>
 
-                            <!-- CAMPO NÚMERO NF -->
                             <div id="numeroNFContainer" class="form-group">
                                 <label for="numeroNF">Número da Nota Fiscal *</label>
-                                <input
-                                    type="text"
-                                    id="numeroNF"
-                                    name="numeroNF"
-                                    placeholder="Ex: NF-2026001"
-                                    disabled
-                                >
-                                <small>Digite o número da nota fiscal emitida</small>
+                                <input type="text" id="numeroNF" name="numeroNF" placeholder="Ex: NF-2026001" disabled>
                             </div>
 
-                            <!-- Descrição -->
                             <div class="form-group">
                                 <label for="descricao">Descrição (opcional)</label>
-                                <textarea
-                                    id="descricao"
-                                    name="descricao"
-                                    rows="3"
-                                    placeholder="Detalhes da venda..."
-                                ></textarea>
+                                <textarea id="descricao" name="descricao" rows="3" placeholder="Detalhes da venda..."></textarea>
                             </div>
 
-                            <!-- Botão -->
-                            <button type="submit" class="btn btn-primary btn-block">
-                                Cadastrar Venda
-                            </button>
+                            <button type="submit" class="btn btn-primary btn-block">Cadastrar Venda</button>
                         </form>
                     </div>
 
-                    <!-- CARD RESUMO MÊS E ANO -->
+                    <!-- CARD COM 6 ESTATÍSTICAS -->
                     <div class="card stats-card">
                         <h3>📈 Resumo Financeiro</h3>
                         <p class="subtitle">Suas vendas do mês e ano atual</p>
 
                         <div class="stats-grid">
-                            <!-- LINHA 1 -->
                             <div class="stat-item">
                                 <div class="stat-label">Total do Mês</div>
                                 <div class="stat-value"><%= df.format(totalMes) %></div>
@@ -720,7 +581,6 @@
                                 <div class="stat-value"><%= vendasRealizadas %></div>
                             </div>
 
-                            <!-- LINHA 2 -->
                             <div class="stat-item">
                                 <div class="stat-label">Limite MEI</div>
                                 <div class="stat-value">R$ 81.000</div>
@@ -733,7 +593,6 @@
                                 </div>
                             </div>
 
-                            <!-- LINHA 3 - DADOS DO ANO -->
                             <div class="stat-item">
                                 <div class="stat-label">Total do Ano</div>
                                 <div class="stat-value"><%= df.format(totalAno) %></div>
@@ -745,20 +604,14 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
 
-                <!-- TABELA ÚLTIMAS VENDAS -->
                 <div class="card">
                     <h3>📋 Últimas Vendas</h3>
-
                     <% if (ultimasVendas.isEmpty()) { %>
                         <div class="empty-state">
                             <div class="icon">📭</div>
                             <p>Nenhuma venda cadastrada ainda</p>
-                            <p style="font-size: 14px; color: #64748b;">
-                                Cadastre sua primeira venda usando o formulário acima
-                            </p>
                         </div>
                     <% } else { %>
                         <table>
@@ -787,9 +640,7 @@
                                             }
                                             %>
                                         </td>
-                                        <td>
-                                            <%= v.getCategoria() != null ? v.getCategoria().getNomeCategoria() : "-" %>
-                                        </td>
+                                        <td><%= v.getCategoria() != null ? v.getCategoria().getNomeCategoria() : "-" %></td>
                                         <td>
                                             <%= v.getDescricao() != null && !v.getDescricao().isEmpty() ?
                                                 (v.getDescricao().length() > 30 ?
@@ -797,9 +648,7 @@
                                                     v.getDescricao()) :
                                                 "-" %>
                                         </td>
-                                        <td>
-                                            <strong><%= df.format(v.getValor()) %></strong>
-                                        </td>
+                                        <td><strong><%= df.format(v.getValor()) %></strong></td>
                                         <td>
                                             <% if ("S".equalsIgnoreCase(v.getNotaFiscalEmitida())) { %>
                                                 <span class="badge badge-success">S</span>
@@ -813,7 +662,6 @@
                         </table>
                     <% } %>
                 </div>
-
             </div>
         </div>
     </div>

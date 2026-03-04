@@ -187,6 +187,12 @@
             top: 0;
             z-index: 100;
         }
+        
+        .topbar-left {
+    		display: flex;
+    		align-items: center;
+   			gap: 12px;
+		}
 
         .topbar h2 {
             font-size: 24px;
@@ -399,6 +405,10 @@
             }
         }
     </style>
+    
+    <!-- Modo de cor -->
+    <%@ include file="corToggle.jsp" %>
+
 </head>
 <body>
     <div class="main-container">
@@ -453,9 +463,12 @@
                  TOPBAR
                  ================================================ -->
             <div class="topbar">
-                <h2>📄 Relatórios</h2>
-                <div class="user-info">
-                    <div class="user-avatar">
+    <div class="topbar-left">
+        <h2>📄 Relatórios</h2>
+    </div>
+    <div class="topbar-right">
+        <div class="user-info">
+            <div class="user-avatar">
                         <%= usuario.getNome().substring(0, 1).toUpperCase() %>
                     </div>
                     <div class="user-details">
@@ -464,6 +477,10 @@
                     </div>
                 </div>
             </div>
+            </div>
+       
+    
+
 
             <!-- ================================================
                  CONTENT

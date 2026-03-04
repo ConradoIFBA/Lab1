@@ -158,6 +158,18 @@
             z-index: 100;
         }
 
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
         .topbar h2 {
             font-size: 24px;
             color: #f1f5f9;
@@ -364,6 +376,10 @@
             }
         }
     </style>
+    
+    <!-- Modo de cor -->
+    <%@ include file="corToggle.jsp" %>
+
 </head>
 <body>
     <div class="main-container">
@@ -377,31 +393,31 @@
             </div>
             <ul class="sidebar-menu">
                 <li>
-                    <a href="${pageContext.request.contextPath}/dashboard">
+                    <a href="dashboard">
                         <span class="icon">🏠</span>
                         <span>Dashboard</span>
                     </a>
                 </li>
                 <li>
-                    <a href="${pageContext.request.contextPath}/historico">
+                    <a href="historico">
                         <span class="icon">📜</span>
                         <span>Histórico</span>
                     </a>
                 </li>
                 <li>
-                    <a href="${pageContext.request.contextPath}/relatorio">
+                    <a href="relatorio">
                         <span class="icon">📊</span>
                         <span>Relatórios</span>
                     </a>
                 </li>
                 <li>
-                    <a href="${pageContext.request.contextPath}/perfil" class="active">
+                    <a href="perfil" class="active">
                         <span class="icon">👤</span>
                         <span>Perfil</span>
                     </a>
                 </li>
                 <li>
-                    <a href="${pageContext.request.contextPath}/logout">
+                    <a href="logout">
                         <span class="icon">🚪</span>
                         <span>Sair</span>
                     </a>
@@ -418,14 +434,18 @@
                  TOPBAR - Cabeçalho fixo
                  ================================================ -->
             <div class="topbar">
-                <h2>👤 Meu Perfil</h2>
-                <div class="user-info">
-                    <div class="user-avatar">
-                        <%= usuario.getNome().substring(0, 1).toUpperCase() %>
-                    </div>
-                    <div class="user-details">
-                        <div class="name"><%= usuario.getNome() %></div>
-                        <div class="role">Microempreendedor</div>
+                <div class="topbar-left">
+                    <h2>👤 Meu Perfil</h2>
+                </div>
+                <div class="topbar-right">
+                    <div class="user-info">
+                        <div class="user-avatar">
+                            <%= usuario.getNome().substring(0, 1).toUpperCase() %>
+                        </div>
+                        <div class="user-details">
+                            <div class="name"><%= usuario.getNome() %></div>
+                            <div class="role">Microempreendedor</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -453,7 +473,7 @@
                      ======================================== -->
                 <div class="card">
                     <h3>📝 Dados Pessoais</h3>
-                    <form method="POST" action="${pageContext.request.contextPath}/perfil">
+                    <form method="POST" action="perfil">
                         <div class="form-row">
                             <!-- Nome -->
                             <div class="form-group">
@@ -507,7 +527,7 @@
                      ======================================== -->
                 <div class="card">
                     <h3>🔒 Alterar Senha</h3>
-                    <form method="POST" action="${pageContext.request.contextPath}/perfil">
+                    <form method="POST" action="perfil">
                         <input type="hidden" name="acao" value="alterarSenha">
 
                         <!-- Senha Atual -->

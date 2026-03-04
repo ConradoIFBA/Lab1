@@ -383,6 +383,10 @@
             return true;
         }
     </script>
+    
+    <!-- Modo de cor -->
+<%@ include file="corToggle.jsp" %>
+
 </head>
 <body>
     <!-- ================================================================

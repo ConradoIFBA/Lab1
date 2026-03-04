@@ -26,6 +26,24 @@
     Integer ano = (Integer) request.getAttribute("ano");
     if (ano == null) ano = 2026;
 
+    // Mês selecionado (padrão: 0 = todos os meses)
+    // VALORES POSSÍVEIS:
+    // 0 = Todos os meses (não filtra por mês)
+    // 1 = Janeiro
+    // 2 = Fevereiro
+    // 3 = Março
+    // 4 = Abril
+    // 5 = Maio
+    // 6 = Junho
+    // 7 = Julho
+    // 8 = Agosto
+    // 9 = Setembro
+    // 10 = Outubro
+    // 11 = Novembro
+    // 12 = Dezembro
+    Integer mes = (Integer) request.getAttribute("mes");
+    if (mes == null) mes = 0;
+
     // Lista de anos disponíveis (para dropdown)
     @SuppressWarnings("unchecked")
     List<Integer> anos = (List<Integer>) request.getAttribute("anos");
@@ -252,7 +270,7 @@
 
         .filtros-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;  /* 2 colunas iguais */
+            grid-template-columns: 1fr 1fr 1fr;  /* 3 colunas iguais (Ano | Mês | NF) */
             gap: 20px;
         }
 
@@ -587,6 +605,9 @@
 
         /* === 14. RESPONSIVIDADE === */
         @media (max-width: 1024px) {
+            .filtros-grid {
+                grid-template-columns: repeat(2, 1fr);  /* 2 colunas em tablets */
+            }
             .stats-cards {
                 grid-template-columns: repeat(2, 1fr);  /* 2 colunas em tablets */
             }
@@ -658,6 +679,8 @@
             window.location.href = 'venda?acao=excluir&id=' + id;
         }
     </script>
+    <!-- Modo de cor -->
+<%@ include file="corToggle.jsp" %>
 </head>
 <body>
     <!-- ================================================================
@@ -770,7 +793,55 @@
                                 </select>
                             </div>
 
-                            <!-- FILTRO 2: Nota Fiscal -->
+                            <!-- FILTRO 2: Mês (NOVO!) -->
+                            <!-- ================================================
+                                 DROPDOWN DE MÊS
+                                 ================================================
+                                 Permite filtrar vendas por mês específico
+                                 
+                                 VALORES:
+                                 0 = Todos os meses (não filtra)
+                                 1-12 = Mês específico (1=Jan, 12=Dez)
+                                 
+                                 SUBMIT AUTOMÁTICO:
+                                 onchange="this.form.submit()" recarrega
+                                 página assim que usuário muda o mês
+                            -->
+                            <div class="form-group">
+                                <label for="mes">Mês</label>
+                                <select id="mes" name="mes" onchange="this.form.submit()">
+                                    <%
+                                    // Array com nomes dos meses em português
+                                    // Índice 0 = "Todos", 1-12 = nomes dos meses
+                                    String[] nomesMeses = {
+                                        "Todos",      // 0 - não filtra por mês
+                                        "Janeiro",    // 1
+                                        "Fevereiro",  // 2
+                                        "Março",      // 3
+                                        "Abril",      // 4
+                                        "Maio",       // 5
+                                        "Junho",      // 6
+                                        "Julho",      // 7
+                                        "Agosto",     // 8
+                                        "Setembro",   // 9
+                                        "Outubro",    // 10
+                                        "Novembro",   // 11
+                                        "Dezembro"    // 12
+                                    };
+                                    
+                                    // Gera options de 0 a 12
+                                    for (int m = 0; m <= 12; m++) {
+                                        // selected se m == mes
+                                        String selected = (m == mes) ? "selected" : "";
+                                    %>
+                                        <option value="<%= m %>" <%= selected %>>
+                                            <%= nomesMeses[m] %>
+                                        </option>
+                                    <% } %>
+                                </select>
+                            </div>
+
+                            <!-- FILTRO 3: Nota Fiscal -->
                             <div class="form-group">
                                 <label for="filtroNF">📋 Filtro de Notas Fiscais</label>
                                 <select id="filtroNF" name="filtroNF" onchange="this.form.submit()">
