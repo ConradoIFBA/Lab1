@@ -2,8 +2,8 @@
 -- BANCO DE DADOS MEI - SUPER COMENTADO
 -- ================================================================
 --
--- VERSÃO: 3.0
--- DATA: 14/02/2026
+-- VERSÃO: 3.1 (Atualizada com consultas SELECT)
+-- DATA: 05/03/2026
 -- AUTOR: Sistema MEI
 -- SGBD: MySQL/MariaDB 10.4+
 --
@@ -19,23 +19,25 @@
 -- 4. Múltiplos métodos de pagamento
 -- 5. Histórico completo de transações
 -- 6. Soft delete em todas tabelas principais
+-- 7. Consultas SELECT com JOIN (requisito acadêmico)
 --
--- ESTRUTURA:
+-- ESTRUTURA DO BANCO:
 -- - 6 tabelas principais
--- - 4 relacionamentos (foreign keys)
+-- - 6 relacionamentos (foreign keys)
 -- - 15 índices para performance
 -- - Soft delete (campo 'ativo')
 -- - Timestamps automáticos
+-- - 5 consultas SELECT com JOIN (trabalho acadêmico)
 --
--- RELACIONAMENTOS:
--- usuario (1) ─── (N) vendas
--- usuario (1) ─── (N) nota_fiscal
--- vendas (1) ──── (1) nota_fiscal
--- vendas (1) ──── (N) pagamento
--- categoria (1) ─ (N) vendas
--- metodo_pagamento (1) ─ (N) pagamento
+-- RELACIONAMENTOS (FOREIGN KEYS):
+-- 1. usuario (1) ─── (N) vendas
+-- 2. usuario (1) ─── (N) nota_fiscal
+-- 3. vendas (1) ──── (1) nota_fiscal
+-- 4. vendas (1) ──── (N) pagamento
+-- 5. categoria (1) ─ (N) vendas
+-- 6. metodo_pagamento (1) ─ (N) pagamento
 --
--- CONVENÇÕES:
+-- CONVENÇÕES DE NOMENCLATURA:
 -- - Tabelas: snake_case (minúsculas com underscore)
 -- - Colunas: snake_case
 -- - PK: id_[tabela] (ex: id_usuario)
@@ -48,6 +50,15 @@
 -- 2. Selecionar: USE mei;
 -- 3. Executar este script completo
 -- 4. Verificar: SHOW TABLES;
+-- 5. Testar consultas SELECT (final do arquivo)
+--
+-- SEÇÕES DO ARQUIVO:
+-- 1. CREATE TABLE (6 tabelas)
+-- 2. INSERT INTO (dados de exemplo)
+-- 3. ALTER TABLE (índices e auto_increment)
+-- 4. FOREIGN KEYS (6 relacionamentos)
+-- 5. CONSULTAS SELECT (5 consultas com JOIN)
+-- 6. QUERIES ÚTEIS (administração)
 -- ================================================================
 
 -- phpMyAdmin SQL Dump
@@ -58,6 +69,8 @@
 -- Tempo de geração: 14/02/2026 às 05:18
 -- Versão do servidor: 10.4.32-MariaDB
 -- Versão do PHP: 8.0.30
+CREATE DATABASE IF NOT EXISTS mei;
+USE mei;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -107,6 +120,7 @@ SET time_zone = "+00:00";
 -- SELECT * FROM categoria WHERE ativo = 1; -- Apenas ativas
 -- UPDATE categoria SET ativo = 0 WHERE id_categoria = 5; -- Soft delete
 -- ================================================================
+
 
 CREATE TABLE `categoria` (
                              `id_categoria` int(11) NOT NULL COMMENT 'PK - Identificador único',
@@ -790,6 +804,360 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 
+-- ================================================================
+-- CONSULTAS SELECT (REQUISITO DO TRABALHO)
+-- ================================================================
+--
+-- As consultas abaixo demonstram o uso de JOIN para relacionar
+-- múltiplas tabelas do banco de dados MEI. Cada consulta tem
+-- uma aplicação prática no sistema real.
+--
+-- IMPORTANTE: Estas consultas são EXEMPLOS para documentação.
+-- As consultas executadas pelo sistema estão nos arquivos DAO
+-- (VendasDAO.java, RelatorioController.java, etc).
+--
+-- ESTRUTURA DE CADA CONSULTA:
+-- 1. Descrição do propósito
+-- 2. Tabelas envolvidas
+-- 3. Tipo de JOIN utilizado
+-- 4. Aplicação prática no sistema
+-- 5. Query SQL completa
+-- ================================================================
+
+
+-- ================================================================
+-- CONSULTA 1: VENDAS COMPLETAS COM CATEGORIA E USUÁRIO
+-- ================================================================
+--
+-- PROPÓSITO:
+-- Listar todas as vendas ativas com informações completas:
+-- nome da categoria, nome do vendedor e status da nota fiscal.
+--
+-- TABELAS ENVOLVIDAS:
+-- - vendas (principal)
+-- - categoria (JOIN)
+-- - usuario (JOIN)
+--
+-- TIPO DE JOIN:
+-- INNER JOIN - Retorna apenas registros com correspondência
+-- em todas as 3 tabelas.
+--
+-- APLICAÇÃO NO SISTEMA:
+-- - historico.jsp: Tabela "Vendas Detalhadas"
+-- - dashboard.jsp: Card "Últimas Vendas"
+-- - RelatorioController: Listagem para PDF
+--
+-- UTILIDADE:
+-- Mostra nome da categoria ao invés de apenas o ID,
+-- facilitando compreensão do usuário.
+--
+-- EXEMPLO DE RESULTADO:
+-- +----+------------+--------+------------------+-----------+----+
+-- | ID | Data       | Valor  | Categoria        | Vendedor  | NF |
+-- +----+------------+--------+------------------+-----------+----+
+-- | 1  | 09/02/2026 | 345.00 | Prestação Serv.  | teste     | N  |
+-- | 2  | 09/02/2026 | 34.00  | Outro            | teste     | N  |
+-- +----+------------+--------+------------------+-----------+----+
+-- ================================================================
+
+SELECT 
+    v.id_vendas AS 'ID',
+    DATE_FORMAT(v.data_vendas, '%d/%m/%Y %H:%i') AS 'Data/Hora',
+    CONCAT('R$ ', FORMAT(v.valor, 2, 'pt_BR')) AS 'Valor',
+    c.nome_categoria AS 'Categoria',
+    u.nome AS 'Vendedor',
+    v.nota_fiscal_emitida AS 'NF',
+    v.descricao AS 'Descrição'
+FROM vendas v
+INNER JOIN categoria c ON v.categoria_id = c.id_categoria
+INNER JOIN usuario u ON v.usuario_id = u.id_usuario
+WHERE v.ativo = 1
+ORDER BY v.data_vendas DESC
+LIMIT 20;
+
+
+-- ================================================================
+-- CONSULTA 2: NOTAS FISCAIS COMPLETAS
+-- ================================================================
+--
+-- PROPÓSITO:
+-- Listar todas as notas fiscais emitidas com detalhes da venda
+-- relacionada e dados do emissor (MEI).
+--
+-- TABELAS ENVOLVIDAS:
+-- - nota_fiscal (principal)
+-- - vendas (JOIN)
+-- - usuario (JOIN)
+--
+-- TIPO DE JOIN:
+-- INNER JOIN - Retorna apenas NFs com venda e usuário válidos.
+--
+-- APLICAÇÃO NO SISTEMA:
+-- - RelatorioController.java: Geração de PDF de relatório
+-- - historico.jsp: Filtro "Somente com Nota Fiscal"
+-- - Auditoria fiscal: Listagem de todas NFs emitidas
+--
+-- UTILIDADE:
+-- Cruza informações de 3 tabelas para relatório fiscal completo.
+-- Mostra número da NF, descrição da venda e dados do emissor.
+--
+-- EXEMPLO DE RESULTADO:
+-- +-----------+------------+--------+-------------+----------+-------+
+-- | Número NF | Emissão    | Valor  | Descrição   | Emissor  | CNPJ  |
+-- +-----------+------------+--------+-------------+----------+-------+
+-- | NF-54312  | 09/02/2026 | 222.00 | ssss        | teste    | NULL  |
+-- | NF-543124 | 11/02/2026 | 55.00  | aaaa        | teste    | NULL  |
+-- +-----------+------------+--------+-------------+----------+-------+
+-- ================================================================
+
+SELECT 
+    nf.numero AS 'Número NF',
+    DATE_FORMAT(nf.data_emissao, '%d/%m/%Y %H:%i') AS 'Data Emissão',
+    CONCAT('R$ ', FORMAT(nf.valor, 2, 'pt_BR')) AS 'Valor',
+    v.descricao AS 'Descrição da Venda',
+    u.nome AS 'Emitido por',
+    IFNULL(u.cnpj, 'Não cadastrado') AS 'CNPJ do Emissor',
+    v.id_vendas AS 'ID Venda'
+FROM nota_fiscal nf
+INNER JOIN vendas v ON nf.vendas_id = v.id_vendas
+INNER JOIN usuario u ON nf.usuario_id = u.id_usuario
+WHERE nf.ativo = 1
+ORDER BY nf.data_emissao DESC;
+
+
+-- ================================================================
+-- CONSULTA 3: ANÁLISE DE PAGAMENTOS POR MÉTODO
+-- ================================================================
+--
+-- PROPÓSITO:
+-- Mostrar como cada venda foi paga, relacionando venda,
+-- pagamento e método de pagamento utilizado.
+--
+-- TABELAS ENVOLVIDAS:
+-- - vendas (principal)
+-- - pagamento (JOIN)
+-- - metodo_pagamento (JOIN)
+--
+-- TIPO DE JOIN:
+-- INNER JOIN - Retorna apenas vendas que têm pagamento registrado.
+--
+-- APLICAÇÃO NO SISTEMA:
+-- - dashboard.jsp: Card "Formas de Pagamento Mais Usadas"
+-- - relatorio.jsp: Análise financeira por método
+-- - Estratégia de negócio: Saber quais formas aceitar
+--
+-- UTILIDADE:
+-- Permite o MEI descobrir:
+-- - Qual forma de pagamento é mais usada
+-- - Se deve investir em maquininha de cartão
+-- - Se deve priorizar PIX (sem taxa)
+--
+-- EXEMPLO DE RESULTADO:
+-- +----------+------------+--------+-----------------+----------+
+-- | ID Venda | Data       | Total  | Forma Pagamento | Valor    |
+-- +----------+------------+--------+-----------------+----------+
+-- | 1        | 09/02/2026 | 345.00 | PIX             | 345.00   |
+-- | 2        | 09/02/2026 | 34.00  | Dinheiro        | 34.00    |
+-- +----------+------------+--------+-----------------+----------+
+--
+-- OBS: Se tabela pagamento estiver vazia, não retorna nada.
+-- Para fins de demonstração, considere que pagamentos foram
+-- registrados no sistema.
+-- ================================================================
+
+SELECT 
+    v.id_vendas AS 'ID Venda',
+    DATE_FORMAT(v.data_vendas, '%d/%m/%Y') AS 'Data Venda',
+    CONCAT('R$ ', FORMAT(v.valor, 2, 'pt_BR')) AS 'Total Venda',
+    mp.descricao AS 'Forma de Pagamento',
+    CONCAT('R$ ', FORMAT(p.valor, 2, 'pt_BR')) AS 'Valor Pago',
+    DATE_FORMAT(p.data_pagamento, '%d/%m/%Y %H:%i') AS 'Data Pagamento'
+FROM vendas v
+INNER JOIN pagamento p ON v.id_vendas = p.vendas_id
+INNER JOIN metodo_pagamento mp ON p.metpag_id = mp.id_metpag
+WHERE v.ativo = 1 AND p.ativo = 1
+ORDER BY p.data_pagamento DESC;
+
+
+-- ================================================================
+-- CONSULTA 4: VENDAS POR MÊS E CATEGORIA (RELATÓRIO ANUAL)
+-- ================================================================
+--
+-- PROPÓSITO:
+-- Análise de vendas agrupadas por mês e categoria, mostrando
+-- quantidade de vendas e total faturado em cada categoria.
+--
+-- TABELAS ENVOLVIDAS:
+-- - vendas (principal)
+-- - categoria (JOIN)
+--
+-- TIPO DE JOIN:
+-- INNER JOIN com GROUP BY
+--
+-- FUNÇÕES AGREGADAS:
+-- - COUNT(*): Total de vendas
+-- - SUM(valor): Total faturado
+-- - AVG(valor): Ticket médio
+--
+-- APLICAÇÃO NO SISTEMA:
+-- - relatorio.jsp: Relatório mensal
+-- - dashboard.jsp: Gráfico de evolução
+-- - Análise de sazonalidade: Quais meses vendem mais
+--
+-- UTILIDADE:
+-- O MEI descobre:
+-- - Qual categoria vende mais em cada mês
+-- - Se há sazonalidade (ex: mais serviços no verão)
+-- - Quando estocar produtos vs focar em serviços
+--
+-- EXEMPLO DE RESULTADO:
+-- +----+------------------+-------+-------------+--------------+
+-- | Mês| Categoria        | Qtd   | Total       | Ticket Médio |
+-- +----+------------------+-------+-------------+--------------+
+-- | 02 | Prestação Serv.  | 4     | R$ 7.367,51 | R$ 1.841,88  |
+-- | 02 | Produtos Indust. | 1     | R$ 555,66   | R$ 555,66    |
+-- | 02 | Outro            | 4     | R$ 4.511,00 | R$ 1.127,75  |
+-- +----+------------------+-------+-------------+--------------+
+-- ================================================================
+
+SELECT 
+    MONTH(v.data_vendas) AS 'Mês',
+    YEAR(v.data_vendas) AS 'Ano',
+    c.nome_categoria AS 'Categoria',
+    COUNT(*) AS 'Quantidade Vendas',
+    CONCAT('R$ ', FORMAT(SUM(v.valor), 2, 'pt_BR')) AS 'Total Faturado',
+    CONCAT('R$ ', FORMAT(AVG(v.valor), 2, 'pt_BR')) AS 'Ticket Médio'
+FROM vendas v
+INNER JOIN categoria c ON v.categoria_id = c.id_categoria
+WHERE v.ativo = 1 
+  AND YEAR(v.data_vendas) = 2026  -- Ano atual
+GROUP BY 
+    YEAR(v.data_vendas),
+    MONTH(v.data_vendas),
+    c.id_categoria,
+    c.nome_categoria
+ORDER BY 
+    YEAR(v.data_vendas) DESC,
+    MONTH(v.data_vendas) DESC,
+    SUM(v.valor) DESC;
+
+
+-- ================================================================
+-- CONSULTA 5: TOP 5 CATEGORIAS MAIS LUCRATIVAS
+-- ================================================================
+--
+-- PROPÓSITO:
+-- Ranking das categorias que mais geram receita para o MEI,
+-- ordenadas por total faturado.
+--
+-- TABELAS ENVOLVIDAS:
+-- - categoria (principal)
+-- - vendas (JOIN)
+--
+-- TIPO DE JOIN:
+-- INNER JOIN com GROUP BY e ORDER BY
+--
+-- FUNÇÕES AGREGADAS:
+-- - COUNT(vendas): Total de vendas
+-- - SUM(valor): Total faturado
+-- - AVG(valor): Ticket médio
+--
+-- APLICAÇÃO NO SISTEMA:
+-- - dashboard.jsp: Card "Top Categorias"
+-- - Estratégia de negócio: Onde focar esforços
+-- - Análise de lucratividade
+--
+-- UTILIDADE:
+-- O MEI descobre:
+-- - Qual categoria traz mais receita
+-- - Se ticket médio alto compensa poucas vendas
+-- - Se deve diversificar ou especializar
+--
+-- EXEMPLO DE RESULTADO:
+-- +----+------------------+-------+-------------+--------------+
+-- | #  | Categoria        | Qtd   | Total       | Ticket Médio |
+-- +----+------------------+-------+-------------+--------------+
+-- | 1º | Prestação Serv.  | 4     | R$ 7.367,51 | R$ 1.841,88  |
+-- | 2º | Outro            | 4     | R$ 4.511,00 | R$ 1.127,75  |
+-- | 3º | Produtos Indust. | 1     | R$ 555,66   | R$ 555,66    |
+-- | 4º | Revenda Mercad.  | 1     | R$ 9,00     | R$ 9,00      |
+-- +----+------------------+-------+-------------+--------------+
+--
+-- INSIGHTS:
+-- - Serviços: Poucas vendas mas ticket ALTO (R$ 1.841)
+-- - Produtos: Mais vendas mas ticket BAIXO (R$ 555)
+-- - Estratégia: Focar em serviços (mais lucrativo)
+-- ================================================================
+
+SELECT 
+    c.nome_categoria AS 'Categoria',
+    COUNT(v.id_vendas) AS 'Quantidade de Vendas',
+    CONCAT('R$ ', FORMAT(SUM(v.valor), 2, 'pt_BR')) AS 'Total Faturado',
+    CONCAT('R$ ', FORMAT(AVG(v.valor), 2, 'pt_BR')) AS 'Ticket Médio',
+    CONCAT(
+        ROUND((SUM(v.valor) / (SELECT SUM(valor) FROM vendas WHERE ativo = 1)) * 100, 1),
+        '%'
+    ) AS 'Percentual do Total'
+FROM categoria c
+INNER JOIN vendas v ON v.categoria_id = c.id_categoria
+WHERE v.ativo = 1 AND c.ativo = 1
+GROUP BY c.id_categoria, c.nome_categoria
+ORDER BY SUM(v.valor) DESC
+LIMIT 5;
+
+
+-- ================================================================
+-- RESUMO DAS CONSULTAS
+-- ================================================================
+--
+-- CONSULTA 1: Vendas + Categoria + Usuario
+-- TIPO: INNER JOIN (3 tabelas)
+-- USO: Listagem de vendas no histórico
+--
+-- CONSULTA 2: Nota Fiscal + Vendas + Usuario
+-- TIPO: INNER JOIN (3 tabelas)
+-- USO: Relatório fiscal em PDF
+--
+-- CONSULTA 3: Vendas + Pagamento + Método Pagamento
+-- TIPO: INNER JOIN (3 tabelas)
+-- USO: Análise de formas de pagamento
+--
+-- CONSULTA 4: Vendas + Categoria (GROUP BY)
+-- TIPO: INNER JOIN + Agregação
+-- USO: Relatório mensal por categoria
+--
+-- CONSULTA 5: Categoria + Vendas (GROUP BY + LIMIT)
+-- TIPO: INNER JOIN + Agregação + Ranking
+-- USO: Top 5 categorias mais lucrativas
+--
+-- ================================================================
+-- OBSERVAÇÕES IMPORTANTES
+-- ================================================================
+--
+-- 1. TABELA PAGAMENTO VAZIA:
+--    A consulta 3 não retornará dados se a tabela `pagamento`
+--    estiver vazia. Para demonstração, considere que pagamentos
+--    foram registrados no sistema.
+--
+-- 2. SOFT DELETE:
+--    Todas as consultas filtram por `ativo = 1` para excluir
+--    registros deletados logicamente.
+--
+-- 3. PERFORMANCE:
+--    Índices foram criados nas colunas de JOIN (FK) para
+--    garantir performance das consultas.
+--
+-- 4. FORMATAÇÃO:
+--    Usamos FORMAT() e CONCAT() para exibir valores monetários
+--    no formato brasileiro (R$ 1.234,56).
+--
+-- 5. APLICAÇÃO PRÁTICA:
+--    Estas consultas já estão implementadas nos DAOs Java:
+--    - VendasDAO.listarComJoin()
+--    - NotaFiscalDAO.listarCompletas()
+--    - RelatorioController.gerarPDF()
+--
+-- ================================================================
 -- ================================================================
 -- QUERIES ÚTEIS PARA ADMINISTRAÇÃO
 -- ================================================================
