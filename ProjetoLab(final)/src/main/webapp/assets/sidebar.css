@@ -1,0 +1,958 @@
+
+/* ================================================
+   1. RESET E VARIÁVEIS CSS
+   ================================================ */
+
+/* RESET UNIVERSAL
+   Remove margens/paddings padrão de todos os elementos
+   box-sizing: border-box inclui padding/border no width total */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+
+:root {
+    /* CORES PRINCIPAIS */
+    --primary-color: #667eea;        /* Roxo principal (botões, links ativos) */
+    --primary-hover: #5568d3;        /* Roxo mais escuro (hover) */
+    --primary-light: #e7eaff;        /* Roxo claro (backgrounds) */
+    --secondary-color: #764ba2;      /* Roxo secundário (gradientes) */
+
+    /*  CORES DE ESTADO  */
+    /* Sucesso (verde) */
+    --success-color: #10b981;        /* Verde texto/ícone */
+    --success-bg: #d1fae5;           /* Verde background */
+    --success-border: #a7f3d0;       /* Verde borda */
+
+    /* Erro (vermelho)  */
+    --error-color: #ef4444;          /* Vermelho texto/ícone */
+    --error-bg: #fee2e2;             /* Vermelho background */
+    --error-border: #fecaca;         /* Vermelho borda */
+
+    /* Aviso (amarelo), alertas não críticos */
+    --warning-color: #f59e0b;        /* Amarelo texto/ícone */
+    --warning-bg: #fef3c7;           /* Amarelo background */
+    --warning-border: #fde68a;       /* Amarelo borda */
+
+    /* Informação (azul) - mensagens informativas */
+    --info-color: #3b82f6;           /* Azul texto/ícone */
+    --info-bg: #dbeafe;              /* Azul background */
+    --info-border: #bfdbfe;          /* Azul borda */
+
+    /* CORES NEUTRAS (Escala de Cinza) */
+    --dark: #1e293b;                 /* Quase preto (textos, sidebar) */
+    --dark-light: #334155;           /* Cinza muito escuro */
+    --gray-dark: #64748b;            /* Cinza escuro (textos secundários) */
+    --gray: #94a3b8;                 /* Cinza médio */
+    --gray-light: #cbd5e1;           /* Cinza claro (bordas) */
+    --gray-lighter: #e2e8f0;         /* Cinza muito claro (backgrounds) */
+    --gray-lightest: #f1f5f9;        /* Quase branco (fundo da página) */
+    --white: #ffffff;                /* Branco puro (cards, textos em dark) */
+
+    /* DIMENSÕES FIXAS */
+    --sidebar-width: 260px;          /* Largura da sidebar (fixa) */
+    --topbar-height: 70px;           /* Altura da topbar (fixa) */
+    --border-radius: 10px;           /* Arredondamento padrão (cards grandes) */
+    --border-radius-sm: 6px;         /* Arredondamento pequeno (inputs, botões) */
+
+    /* SOMBRAS (Box Shadow) */
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);          /* Sombra muito leve */
+    --shadow: 0 2px 8px rgba(0, 0, 0, 0.1);              /* Sombra padrão (cards) */
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);         /* Sombra média (hover) */
+    --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);          /* Sombra grande (modais) */
+
+    /* TRANSIÇÕES  */
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); /* Transição suave (ease-in-out) */
+}
+
+/* CONFIGURAÇÃO DO BODY
+   Define fonte, cor de fundo e suavização de texto */
+body {
+    font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: var(--gray-lightest);                    /* Fundo cinza claro */
+    color: var(--dark);                                  /* Texto escuro por padrão */
+    font-size: 14px;                                     /* Tamanho base do texto */
+    line-height: 1.6;                                    /* Espaçamento entre linhas */
+    -webkit-font-smoothing: antialiased;                 /* Suavização de fonte (Mac/iOS) */
+    -moz-osx-font-smoothing: grayscale;                  /* Suavização de fonte (Firefox) */
+}
+
+
+/* ================================================
+   2. LAYOUT PRINCIPAL
+   ================================================ */
+
+/* CONTAINER PRINCIPAL
+   Flexbox que contém sidebar + main-content
+   Ocupa toda a altura da tela (100vh) */
+.main-container {
+    display: flex;                   /* Flexbox horizontal */
+    min-height: 100vh;               /* Altura mínima = altura da viewport */
+    width: 100%;
+}
+
+
+/* === SIDEBAR (Esquerda) === */
+
+/* SIDEBAR PRINCIPAL
+   Barra lateral fixa à esquerda com gradiente escuro
+   Fica sempre visível e não rola com a pagina */
+.sidebar {
+    width: var(--sidebar-width);                         /* 260px fixo */
+    background: linear-gradient(135deg, var(--dark) 0%, var(--dark-light) 100%);
+    color: var(--white);                                 /* Texto branco */
+    position: fixed;                                     /* Fixo na tela (não rola) */
+    left: 0;                                             /* Colado na esquerda */
+    top: 0;                                              /* Colado no topo */
+    height: 100vh;                                       /* Altura total da tela */
+    overflow-y: auto;                                    /* Scroll vertical se necessário */
+    box-shadow: var(--shadow-md);                        /* Sombra à direita */
+    z-index: 1000;                                       /* Fica acima de outros elementos */
+    transition: var(--transition);                       /* Transição suave ao abrir/fechar */
+}
+
+/* SCROLLBAR PERSONALIZADO DA SIDEBAR */
+.sidebar::-webkit-scrollbar {
+    width: 6px;                      /* Largura da barra de scroll */
+}
+
+.sidebar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);               /* Trilho transparente */
+}
+
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);                /* Polegar semi-transparente */
+    border-radius: 10px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);                /* Fica mais visível ao passar mouse */
+}
+
+/* CABEÇALHO DA SIDEBAR
+   Área do logo/título no topo da sidebar */
+.sidebar-header {
+    padding: 25px 20px;              /* Espaçamento interno */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);   /* Linha separadora */
+}
+
+.sidebar-header h1 {
+    font-size: 24px;
+    font-weight: 700;                /* Negrito */
+    color: var(--white);
+    display: flex;                   /* Para alinhar ícone + texto */
+    align-items: center;             /* Centraliza verticalmente */
+    gap: 10px;                       /* Espaço entre ícone e texto */
+}
+
+/* MENU DA SIDEBAR
+   Lista de links de navegação */
+.sidebar-menu {
+    list-style: none;                /* Remove bullets da lista */
+    padding: 20px 0;                 /* Espaçamento vertical */
+}
+
+.sidebar-menu li {
+    margin-bottom: 5px;              /* Espaço entre itens */
+}
+
+/* LINKS DO MENU
+   Estilização dos links de navegação  */
+.sidebar-menu a {
+    display: flex;                   /* Flexbox para alinhar ícone + texto */
+    align-items: center;             /* Centraliza verticalmente */
+    gap: 12px;                       /* Espaço entre ícone e texto */
+    padding: 12px 20px;              /* Espaçamento interno */
+    color: rgba(255, 255, 255, 0.8); /* Branco semi-transparente */
+    text-decoration: none;           /* Remove sublinhado */
+    transition: var(--transition);   /* Transição suave ao hover */
+    position: relative;              /* Para posicionar ::before (barra lateral) */
+    overflow: hidden;                /* Esconde overflow da barra */
+}
+
+/* BARRA LATERAL INDICADORA
+   Barra azul que aparece à esquerda do item ativo/hover */
+.sidebar-menu a::before {
+    content: '';                     /* Elemento vazio */
+    position: absolute;              /* Posicionado em relação ao <a> */
+    left: 0;                         /* Colado na esquerda */
+    top: 0;                          /* Do topo */
+    height: 100%;                    /* Altura total do link */
+    width: 4px;                      /* Largura da barra */
+    background: var(--primary-color);/* Cor roxa */
+    transform: translateX(-4px);     /* Escondida à esquerda (invisível) */
+    transition: var(--transition);   /* Transição suave ao aparecer */
+}
+
+/* ESTADO HOVER E ATIVO DOS LINKS
+   Quando passa o mouse OU quando está na página atual */
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    background: rgba(255, 255, 255, 0.1);                /* Fundo semi-transparente */
+    color: var(--white);                                 /* Branco 100% opaco */
+}
+
+/* MOSTRA A BARRA LATERAL NO HOVER/ATIVO */
+.sidebar-menu a:hover::before,
+.sidebar-menu a.active::before {
+    transform: translateX(0);        /* Move para posição visível */
+}
+
+/* ÍCONE DO MENU
+   Emoji ou ícone à esquerda de cada item */
+.sidebar-menu .icon {
+    font-size: 20px;
+    width: 24px;                     /* Largura fixa para alinhamento */
+    text-align: center;              /* Centraliza o ícone */
+}
+
+/* LABEL DO MENU
+   Texto do link  */
+.sidebar-menu .label {
+    font-size: 14px;
+    font-weight: 500;                /* Semi-negrito */
+}
+
+
+/* === MAIN CONTENT === */
+
+/* MAIN CONTENT
+  topbar + content */
+.main-content {
+    flex: 1;                         /* Ocupa todo o espaço restante */
+    margin-left: var(--sidebar-width);  /* Margem = largura da sidebar (260px) */
+    display: flex;                   /* Flexbox vertical */
+    flex-direction: column;          /* Topbar em cima, content embaixo */
+    min-height: 100vh;               /* Altura mínima = tela inteira */
+}
+
+
+/* ================================================
+   3. TOPBAR
+   ================================================ */
+
+/* TOPBAR
+   Info do usuário
+   Fica fixa ao rolar a página (sticky) */
+.topbar {
+    background: var(--white);        /* Fundo branco */
+    height: var(--topbar-height);    /* Altura fixa de 70px */
+    display: flex;                   /* Flexbox horizontal */
+    align-items: center;             /* Centraliza verticalmente */
+    justify-content: space-between;  /* Espaço entre esquerda e direita */
+    padding: 0 30px;                 /* Espaçamento horizontal */
+    box-shadow: var(--shadow-sm);    /* Sombra sutil embaixo */
+    position: sticky;                /* Fica fixo ao rolar (mas dentro do main-content) */
+    top: 0;                          /* Colado no topo */
+    z-index: 100;                    /* Fica acima do conteúdo ao rolar */
+}
+
+/* ESQUERDO TOPBAR
+   Título da página atual  */
+.topbar-left h2 {
+    font-size: 22px;
+    font-weight: 600;                /* Semi-negrito */
+    color: var(--dark);
+}
+
+/* DIREITO TOPBAR
+   Info do usuário, notificações etc */
+.topbar-right {
+    display: flex;                   /* Flexbox horizontal */
+    align-items: center;             /* Centraliza verticalmente */
+    gap: 20px;                       /* Espaço entre elementos */
+}
+
+/* INFO DO USUÁRIO
+   Avatar + nome  */
+.user-info {
+    display: flex;                   /* Flexbox horizontal */
+    align-items: center;             /* Centraliza verticalmente */
+    gap: 12px;                       /* Espaço entre avatar e texto */
+}
+
+/* AVATAR DO USUÁRIO
+   Círculo com inicial do nome em gradiente roxo */
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;              /* Torna círculo perfeito */
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    display: flex;                   /* Para centralizar a letra */
+    align-items: center;             /* Centraliza verticalmente */
+    justify-content: center;         /* Centraliza horizontalmente */
+    color: var(--white);             /* Letra branca */
+    font-weight: 600;                /* Semi-negrito */
+    font-size: 16px;
+}
+
+/* DETALHES DO USUÁRIO
+   Nome + role(MEI) */
+.user-details {
+    display: flex;                   /* Flexbox vertical */
+    flex-direction: column;          /* Nome em cima, role embaixo */
+}
+
+.user-details .name {
+    font-size: 14px;
+    font-weight: 600;                /* Semi-negrito */
+    color: var(--dark);
+    line-height: 1.2;                /* Espaçamento de linha reduzido */
+}
+
+.user-details .role {
+    font-size: 12px;
+    color: var(--gray-dark);         /* Cinza */
+    line-height: 1.2;
+}
+
+
+/* ================================================
+   4. CONTENT (Área de Conteúdo)
+   ================================================ */
+
+/* CONTENT
+   Área onde fica todo o conteúdo da página
+   (formulários, tabelas, cards, etc) */
+.content {
+    flex: 1;                         /* Ocupa todo espaço restante */
+    padding: 30px;                   /* Espaçamento interno */
+}
+
+
+/* ================================================
+   5. CARDS E GRID
+   ================================================ */
+
+/* DASHBOARD GRID
+   Grid de 2 colunas para formulário + card de stats
+   Coluna da esquerda menor (1fr), direita maior (1.5fr) */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.5fr;/* 40% esquerda, 60% direita */
+    gap: 20px;                       /* Espaço entre colunas */
+    margin-bottom: 30px;             /* Espaço embaixo */
+}
+
+/* CARDS GENÉRICOS
+   Estilização base para todos os cards (brancos com sombra) */
+.card,
+.card-form,
+.card-stats,
+.vendas-table {
+    background: var(--white);        /* Fundo branco */
+    border-radius: var(--border-radius);  /* Cantos arredondados */
+    box-shadow: var(--shadow);       /* Sombra padrão */
+    padding: 25px;                   /* Espaçamento interno */
+    transition: var(--transition);   /* Transição suave ao hover */
+}
+
+/* EFEITO HOVER NOS CARDS
+   Aumenta sombra e levanta o card ao passar mouse */
+.card:hover,
+.card-form:hover,
+.vendas-table:hover {
+    box-shadow: var(--shadow-md);    /* Sombra maior */
+    transform: translateY(-2px);     /* Move 2px pra cima */
+}
+
+/* CARD DE ESTATÍSTICAS
+   Card especial com gradiente roxo (Resumo do Mês) */
+.card-stats {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: var(--white);             /* Texto branco */
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);  /* Sombra roxa */
+}
+
+.card-stats:hover {
+    box-shadow: 0 8px 24px rgba(102, 126, 234, 0.4);  /* Sombra roxa maior */
+}
+
+/* TÍTULOS DOS CARDS
+   h3 dentro de qualquer card */
+.card h3,
+.card-form h3,
+.card-stats h3,
+.vendas-table h3 {
+    font-size: 18px;
+    font-weight: 600;                /* Semi-negrito */
+    margin: 0 0 20px 0;              /* Espaço embaixo */
+    color: inherit;                  /* Herda cor do pai (branco no stats, escuro nos outros) */
+}
+
+/* STATS GRID
+   Grid 2x2 dentro do card de estatísticas
+   (Total do Mês, Vendas, Limite, Disponível) */
+.stats-grid {
+    display: grid;                   /* CSS Grid */
+    grid-template-columns: repeat(2, 1fr);  /* 2 colunas iguais */
+    gap: 15px;                       /* Espaço entre células */
+    margin-top: 20px;                /* Espaço do título */
+}
+
+/* ITEM DE ESTATÍSTICA
+   Cada célula do grid 2x2 */
+.stat-item {
+    background: rgba(255, 255, 255, 0.2);  /* Branco semi-transparente */
+    backdrop-filter: blur(10px);     /* Efeito de desfoque (glassmorphism) */
+    padding: 20px;                   /* Espaçamento interno */
+    border-radius: var(--border-radius-sm);  /* Cantos arredondados */
+    transition: var(--transition);   /* Transição suave ao hover */
+}
+
+.stat-item:hover {
+    background: rgba(255, 255, 255, 0.25);  /* Fica mais opaco */
+    transform: translateY(-2px);     /* Levanta 2px */
+}
+
+/* LABEL DA ESTATÍSTICA
+   Texto pequeno acima do valor (ex: "Total do Mês") */
+.stat-label {
+    font-size: 12px;
+    opacity: 0.9;                    /* Levemente transparente */
+    margin-bottom: 8px;              /* Espaço do valor */
+    font-weight: 500;                /* Semi-negrito */
+    text-transform: uppercase;       /* MAIÚSCULAS */
+    letter-spacing: 0.5px;           /* Espaçamento entre letras */
+}
+
+/* VALOR DA ESTATÍSTICA
+   Número grande (ex: "R$ 5.480,00") */
+.stat-value {
+    font-size: 28px;
+    font-weight: 700;                /* Negrito */
+    line-height: 1;                  /* Sem espaço extra */
+}
+
+
+/* ================================================
+   6. FORMULÁRIOS
+   ================================================ */
+
+/* GRUPO DE CAMPO (Label + Input)
+   Estrutura padrão de cada campo do formulário */
+.form-group {
+    margin-bottom: 20px;             /* Espaço entre campos */
+}
+
+/* LABEL DO CAMPO
+   Texto acima do input (ex: "Categoria *") */
+.form-group label {
+    display: block;                  /* Ocupa linha inteira */
+    margin-bottom: 8px;              /* Espaço do input */
+    font-weight: 600;                /* Semi-negrito */
+    color: var(--dark);              /* Texto escuro */
+    font-size: 14px;
+}
+
+/* INPUTS, SELECTS E TEXTAREAS
+   Estilização base de todos os campos de formulário */
+.form-group input,
+.form-group select,
+.form-group textarea {
+    width: 100%;                     /* Largura total */
+    padding: 12px 14px;              /* Espaçamento interno */
+    border: 2px solid var(--gray-lighter);  /* Borda cinza clara */
+    border-radius: var(--border-radius-sm); /* Cantos arredondados */
+    font-size: 14px;
+    font-family: inherit;            /* Herda fonte do body */
+    transition: var(--transition);   /* Transição suave */
+    background: var(--white);        /* Fundo branco */
+    color: var(--dark);              /* Texto escuro */
+}
+
+/* ESTADO FOCUS DOS INPUTS
+   Quando clica no campo (foco) */
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+    outline: none;                   /* Remove borda padrão do navegador */
+    border-color: var(--primary-color);  /* Borda roxa */
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);  /* Glow roxo suave */
+}
+
+/* TEXTAREA
+   Campo de texto multilinha (descrição) */
+.form-group textarea {
+    min-height: 80px;                /* Altura mínima */
+    resize: vertical;                /* Permite redimensionar apenas verticalmente */
+}
+
+/* ASTERISCO OBRIGATÓRIO
+   * vermelho ao lado de campos obrigatórios */
+.form-group .required {
+    color: var(--error-color);       /* Vermelho */
+    margin-left: 2px;
+}
+
+
+/* ================================================
+   7. BOTÕES
+   ================================================ */
+
+/* BOTÃO BASE
+   Estilização comum a todos os botões */
+.btn {
+    display: inline-flex;            /* Flexbox para alinhar ícone + texto */
+    align-items: center;             /* Centraliza verticalmente */
+    justify-content: center;         /* Centraliza horizontalmente */
+    gap: 8px;                        /* Espaço entre ícone e texto */
+    padding: 12px 24px;              /* Espaçamento interno */
+    border: none;                    /* Remove borda padrão */
+    border-radius: var(--border-radius-sm);  /* Cantos arredondados */
+    font-size: 14px;
+    font-weight: 600;                /* Semi-negrito */
+    cursor: pointer;                 /* Cursor de mão */
+    transition: var(--transition);   /* Transição suave */
+    text-decoration: none;           /* Remove sublinhado  */
+    font-family: inherit;            /* Herda fonte do body */
+}
+
+/* BOTÃO PRIMÁRIO
+   Botão roxo com gradiente (principal ação) */
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    color: var(--white);             /* Texto branco */
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);  /* Sombra roxa */
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);     /* Levanta 2px */
+    box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);  /* Sombra maior */
+}
+
+.btn-primary:active {
+    transform: translateY(0);        /* Volta posição ao clicar */
+}
+
+/* BOTÃO SECUNDÁRIO
+   Botão cinza (ação secundária) */
+.btn-secondary {
+    background: var(--gray-lighter); /* Cinza claro */
+    color: var(--dark);              /* Texto escuro */
+}
+
+.btn-secondary:hover {
+    background: var(--gray-light);   /* Cinza mais escuro */
+}
+
+/* BOTÃO DE SUCESSO
+   Botão verde (confirmações) */
+.btn-success {
+    background: var(--success-color);
+    color: var(--white);
+}
+
+/* BOTÃO DE PERIGO
+   Botão vermelho (ações destrutivas como excluir) */
+.btn-danger {
+    background: var(--error-color);
+    color: var(--white);
+}
+
+
+/* ================================================
+   8. TABELAS
+   ================================================ */
+
+/* TABELA
+   Tabela de dados (Últimas Vendas, etc) */
+table {
+    width: 100%;                     /* Largura total do container */
+    border-collapse: separate;       /* Permite border-radius */
+    border-spacing: 0;               /* Remove espaço entre células */
+}
+
+/* CABEÇALHO DA TABELA
+   Linha com títulos das colunas */
+thead {
+    background: var(--gray-lightest);/* Fundo cinza claro */
+}
+
+/* CÉLULAS DO CABEÇALHO
+   Títulos das colunas (Data, Categoria, Valor, etc) */
+th {
+    padding: 14px 16px;              /* Espaçamento interno */
+    text-align: left;                /* Alinha à esquerda */
+    font-weight: 600;                /* Semi-negrito */
+    color: var(--dark);              /* Texto escuro */
+    font-size: 13px;
+    text-transform: uppercase;       /* MAIÚSCULAS */
+    letter-spacing: 0.5px;           /* Espaçamento entre letras */
+    border-bottom: 2px solid var(--gray-lighter);  /* Linha embaixo */
+}
+
+/* CANTOS ARREDONDADOS NO CABEÇALHO */
+th:first-child {
+    border-top-left-radius: var(--border-radius-sm);
+}
+
+th:last-child {
+    border-top-right-radius: var(--border-radius-sm);
+}
+
+/* CÉLULAS DE DADOS
+   Conteúdo da tabela */
+td {
+    padding: 14px 16px;              /* Espaçamento interno */
+    border-bottom: 1px solid var(--gray-lighter);  /* Linha embaixo */
+    color: var(--dark);              /* Texto escuro */
+}
+
+/* LINHAS DO CORPO DA TABELA */
+tbody tr {
+    transition: var(--transition);   /* Transição suave ao hover */
+}
+
+/* HOVER NAS LINHAS
+   Destaca linha ao passar mouse */
+tbody tr:hover {
+    background: var(--gray-lightest);/* Fundo cinza claro */
+}
+
+/* ÚLTIMA LINHA SEM BORDA
+   Remove linha embaixo da última célula */
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* ================================================
+   9. ALERTAS E MENSAGENS
+   ================================================ */
+
+/* ALERTA BASE
+   Mensagens de feedback (sucesso, erro, aviso, info) */
+.alert {
+    padding: 14px 18px;              /* Espaçamento interno */
+    border-radius: var(--border-radius-sm);  /* Cantos arredondados */
+    margin-bottom: 20px;             /* Espaço embaixo */
+    display: flex;                   /* Flexbox para alinhar ícone + texto */
+    align-items: center;             /* Centraliza verticalmente */
+    gap: 10px;                       /* Espaço entre ícone e texto */
+    font-weight: 500;                /* Semi-negrito */
+    animation: slideIn 0.3s ease;    /* Animação de entrada */
+}
+
+/* ANIMAÇÃO DE ENTRADA DO ALERTA
+   Desliza de cima para baixo com fade */
+@keyframes slideIn {
+    from {
+        opacity: 0;                  /* Invisível */
+        transform: translateY(-10px);/* 10px acima */
+    }
+    to {
+        opacity: 1;                  /* Visível */
+        transform: translateY(0);    /* Posição normal */
+    }
+}
+
+/* ALERTA DE SUCESSO
+   Verde - "Venda cadastrada com sucesso!" */
+.alert-success {
+    background: var(--success-bg);   /* Fundo verde claro */
+    color: #065f46;                  /* Texto verde escuro */
+    border: 1px solid var(--success-border);  /* Borda verde */
+}
+
+/* ALERTA DE ERRO
+   Vermelho - "Erro ao cadastrar venda" */
+.alert-error {
+    background: var(--error-bg);     /* Fundo vermelho claro */
+    color: #991b1b;                  /* Texto vermelho escuro */
+    border: 1px solid var(--error-border);  /* Borda vermelha */
+}
+
+/* ALERTA DE AVISO
+   Amarelo - Avisos não críticos */
+.alert-warning {
+    background: var(--warning-bg);   /* Fundo amarelo claro */
+    color: #92400e;                  /* Texto amarelo escuro */
+    border: 1px solid var(--warning-border);  /* Borda amarela */
+}
+
+/* ALERTA DE INFORMAÇÃO
+   Azul - Mensagens informativas */
+.alert-info {
+    background: var(--info-bg);      /* Fundo azul claro */
+    color: #1e40af;                  /* Texto azul escuro */
+    border: 1px solid var(--info-border);  /* Borda azul */
+}
+
+
+/* ================================================
+   10. BADGES (Etiquetas)
+   ================================================ */
+
+/* BADGE BASE
+   Etiquetas pequenas (ex: "S" ou "N" na coluna NF) */
+.badge {
+    display: inline-flex;            /* Flexbox inline */
+    align-items: center;             /* Centraliza verticalmente */
+    padding: 4px 10px;               /* Espaçamento interno */
+    border-radius: 12px;             /* Muito arredondado (pílula) */
+    font-size: 12px;
+    font-weight: 600;                /* Semi-negrito */
+}
+
+/* BADGE DE SUCESSO
+   Verde - "S" (com Nota Fiscal) */
+.badge-success {
+    background: var(--success-bg);   /* Fundo verde claro */
+    color: #065f46;                  /* Texto verde escuro */
+}
+
+/* BADGE DE PERIGO
+   Vermelho - Para estados negativos */
+.badge-danger {
+    background: var(--error-bg);     /* Fundo vermelho claro */
+    color: #991b1b;                  /* Texto vermelho escuro */
+}
+
+/* BADGE DE AVISO
+   Amarelo - Para avisos */
+.badge-warning {
+    background: var(--warning-bg);   /* Fundo amarelo claro */
+    color: #92400e;                  /* Texto amarelo escuro */
+}
+
+/* BADGE DE INFO
+   Azul - "N" (sem Nota Fiscal) ou informações neutras */
+.badge-info {
+    background: var(--info-bg);      /* Fundo azul claro */
+    color: #1e40af;                  /* Texto azul escuro */
+}
+
+
+/* ================================================
+   11. ESTADOS ESPECIAIS
+   ================================================ */
+
+/* EMPTY STATE
+   Mensagem quando não há dados (ex: "Nenhuma venda cadastrada") */
+.empty-state {
+    text-align: center;              /* Centraliza texto */
+    padding: 60px 20px;              /* Espaçamento generoso */
+    color: var(--gray-dark);         /* Texto cinza */
+}
+
+.empty-state .icon {
+    font-size: 48px;                 /* Emoji grande */
+    margin-bottom: 16px;             /* Espaço do texto */
+    opacity: 0.5;                    /* Semi-transparente */
+}
+
+.empty-state p {
+    font-size: 16px;
+    margin-bottom: 20px;             /* Espaço entre parágrafos */
+}
+
+/* LOADING (Spinner)
+   Animação de carregamento */
+.loading {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(255, 255, 255, 0.3);  /* Borda cinza */
+    border-radius: 50%;              /* Círculo */
+    border-top-color: var(--white);  /* Topo branco (cria efeito de giro) */
+    animation: spin 0.8s linear infinite;  /* Gira infinitamente */
+}
+
+/* ANIMAÇÃO DE ROTAÇÃO
+   Usado no loading spinner */
+@keyframes spin {
+    to { transform: rotate(360deg); }  /* Gira 360 graus */
+}
+
+
+/* ================================================
+   12. RESPONSIVIDADE (Media Queries)
+   ================================================ */
+
+/* TABLETS? (até 1024px)
+   Grid de 2 colunas vira 1 coluna */
+
+
+/* SMARTPHONES (até 768px)
+   Sidebar some, topbar encolhe, espaçamentos reduzem */
+@media (max-width: 768px) {
+    :root {
+        --sidebar-width: 0;          /* Remove largura da sidebar */
+    }
+
+    /* SIDEBAR ESCONDIDA POR PADRÃO
+       Só aparece quando ativada (menu mobile) */
+    .sidebar {
+        transform: translateX(-100%);/* Move 100% pra esquerda (invisível) */
+    }
+
+    .sidebar.active {
+        transform: translateX(0);    /* Volta para posição visível */
+    }
+
+    /* MAIN CONTENT SEM MARGEM ESQUERDA
+       Ocupa tela inteira */
+    .main-content {
+        margin-left: 0;
+    }
+
+    /* TOPBAR MAIS COMPACTA */
+    .topbar {
+        padding: 0 15px;             /* Menos padding */
+    }
+
+    .topbar-left h2 {
+        font-size: 18px;             /* Título menor */
+    }
+
+    /* CONTENT MAIS COMPACTO */
+    .content {
+        padding: 20px 15px;          /* Menos padding */
+    }
+
+    /* STATS EM COLUNA ÚNICA */
+    .stats-grid {
+        grid-template-columns: 1fr;  /* 1 coluna apenas */
+    }
+
+    /* TABELA MENOR */
+    table {
+        font-size: 12px;             /* Texto menor */
+    }
+
+    th, td {
+        padding: 10px 8px;           /* Menos padding */
+    }
+}
+
+/* SMARTPHONES PEQUENOS (até 480px)
+   Layout ultra-compacto */
+@media (max-width: 480px) {
+    /* ESCONDE NOME DO USUÁRIO
+       Mostra só o avatar */
+    .user-details {
+        display: none;
+    }
+
+    /* CARDS MAIS COMPACTOS */
+    .card,
+    .card-form,
+    .card-stats,
+    .vendas-table {
+        padding: 15px;               /* Menos padding */
+    }
+
+    /* VALORES MENORES */
+    .stat-value {
+        font-size: 20px;             /* Reduz tamanho */
+    }
+}
+
+
+/* ================================================
+   13. MENU MOBILE (Hamburger)
+   ================================================ */
+
+/* BOTÃO MENU MOBILE
+   Ícone de 3 linhas (hamburger) para abrir sidebar */
+.mobile-menu-toggle {
+    display: none;                   /* Escondido por padrão */
+    width: 40px;
+    height: 40px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    flex-direction: column;          /* Linhas verticais */
+    justify-content: center;
+    gap: 6px;                        /* Espaço entre linhas */
+    padding: 8px;
+}
+
+.mobile-menu-toggle span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: var(--dark);         /* Linhas escuras */
+    transition: var(--transition);   /* Transição suave (animação futura) */
+}
+
+/* MOSTRA BOTÃO NO MOBILE */
+@media (max-width: 768px) {
+    .mobile-menu-toggle {
+        display: flex;               /* Mostra no mobile */
+    }
+}
+
+
+/* ================================================
+   14. CLASSES UTILITÁRIAS
+   ================================================ */
+
+/* ALINHAMENTO DE TEXTO */
+.text-center { text-align: center; }
+.text-right { text-align: right; }
+
+/* CORES DE TEXTO */
+.text-muted { color: var(--gray-dark); }       /* Cinza */
+.text-success { color: var(--success-color); } /* Verde */
+.text-error { color: var(--error-color); }     /* Vermelho */
+.text-warning { color: var(--warning-color); } /* Amarelo */
+
+/* MARGENS */
+.mt-10 { margin-top: 10px; }
+.mt-20 { margin-top: 20px; }
+.mt-30 { margin-top: 30px; }
+.mb-10 { margin-bottom: 10px; }
+.mb-20 { margin-bottom: 20px; }
+.mb-30 { margin-bottom: 30px; }
+
+/* DISPLAY */
+.d-none { display: none; }          /* Esconde elemento */
+.d-block { display: block; }        /* Display block */
+.d-flex { display: flex; }          /* Display flex */
+.d-grid { display: grid; }          /* Display grid */
+
+
+/* ================================================
+   15. SCROLLBAR GLOBAL (Todas as áreas)
+   ================================================ */
+
+/* SCROLLBAR PERSONALIZADO
+   Barra de rolagem estilizada em toda a página */
+::-webkit-scrollbar {
+    width: 10px;                     /* Largura da barra vertical */
+    height: 10px;                    /* Altura da barra horizontal */
+}
+
+::-webkit-scrollbar-track {
+    background: var(--gray-lightest);/* Trilho cinza claro */
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--gray-light);   /* Polegar cinza */
+    border-radius: 5px;              /* Cantos arredondados */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--gray);         /* Cinza mais escuro ao hover */
+}
+
+
+/* ================================================
+
+
+   VARIÁVEIS PRINCIPAIS (em :root):
+   - Cores: primary, success, error, warning, gray scale
+   - Dimensões: sidebar-width (260px), topbar-height (70px)
+   - Sombras: shadow-sm, shadow, shadow-md, shadow-lg
+   - Transições: transition (0.3s ease)
+
+   BREAKPOINTS:
+   - Desktop: > 1024px (padrão)
+   - Tablet: 768px - 1024px
+   - Mobile: < 768px
+   - Mobile Small: < 480px
+   ================================================ */
